@@ -7,5 +7,8 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     email = models.EmailField(unique=True)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']  # keep username optional but unique
+
     def __str__(self):
-        return self.username
+        return self.get_full_name() or self.email
