@@ -1,5 +1,6 @@
 from pathlib import Path
 import environ
+from datetime import timedelta
 # import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -15,6 +16,7 @@ environ.Env.read_env(BASE_DIR/ '.env')
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+#! Environment Variable used for protection. 
 DEBUG = env('DEBUG', cast=bool, default=False)
 
 ALLOWED_HOSTS = []
@@ -31,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'djoser',
     'corsheaders',
     'user',
     'api',
@@ -120,7 +123,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Media
-
+#! For the image upload feature. Mentioning the path. 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -135,8 +138,32 @@ INTERNAL_IPS = [
     # ...
 ]
 
+#! Setting default user to the User model of user app. 
+
 AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False, 
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+
+#! Customizing the serializer that is responsible for the creation of user. To take first_name and last_name as they are registering users. 
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user_create': 'user.serializers.UserCreateSerializer',
+        'current_user': 'user.serializers.UserSerializer'
+    }
+}
+
+#! Updating the jwt token access time to avoid expiration in short time. 
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT',),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=5)
+    
 }
