@@ -19,16 +19,23 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 #! This one shows: required skills, who posted it, important fields
 class JobSerializer(serializers.ModelSerializer):
-    required_skills = SkillSerializer(many=True, read_only=True)
-    posted_by = serializers.StringRelatedField(read_only=True)
+    applied = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
         fields = [
-            'id', 'title', 'description', 'company_name',
-            'location', 'required_skills', 'posted_by',
-            'created_at'
+            'id', 'title', 'company_name', 'location', 'description', 'created_at', 'applied'
         ]
+
+    def get_applied(self, obj):
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return False
+
+        return Application.objects.filter(
+            job=obj,
+            applicant=request.user
+        ).exists()
 
 
 #! For creating jobs, we need a write serializer too. For POST requests. 

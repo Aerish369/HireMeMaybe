@@ -143,10 +143,24 @@ INTERNAL_IPS = [
 AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
+    #! For pagination
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+
+    #! For deciam value in API to return decimal instead of string
     'COERCE_DECIMAL_TO_STRING': False, 
+
+    #! For JWT Auth
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
+    #! For Django Filter
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
 }
 
 
