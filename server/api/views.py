@@ -32,7 +32,33 @@ class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gen
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-        
+
+
+
+class JobListAPIView(generics.ListAPIView):
+    queryset = Job.objects.all().order_by('-created_at')
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+
+    search_fields = ['title', 'company_name', 'location']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+
+    def get_serializer_context(self):
+        return {"request": self.request}
+
+
+
+class JobDetailAPIView(generics.RetrieveAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_serializer_context(self):
+        return {"request": self.request}
+
+    
+
 
 class JobCreateAPIView(generics.CreateAPIView):
     queryset = Job.objects.all()
