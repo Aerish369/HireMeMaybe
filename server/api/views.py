@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework import status, permissions, generics
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.viewsets import ModelViewSet
 
 from .models import Profile, Application, Job
 from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer
@@ -33,42 +34,86 @@ class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gen
             serializer.save()
             return Response(serializer.data)
 
-
-
-class JobListAPIView(generics.ListAPIView):
-    queryset = Job.objects.all().order_by('-created_at')
+class JobViewSet(ModelViewSet):
+    queryset = Job.objects.all()
     serializer_class = JobSerializer
-    permission_classes = [permissions.AllowAny]
-
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     search_fields = ['title', 'company_name', 'location']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
 
+    def get_serializer_class(self):
+        """Returns JobCreateSerializer for POST/create, and JobSerializer for all other actions."""
+        if self.action == 'create':
+            return JobCreateSerializer
+        return JobSerializer
+
+    def perform_create(self, serializer):
+        """Saves the job listing and sets the posted_by field to the current user."""
+        # This will use JobCreateSerializer based on get_serializer_class()
+        # The save() method calls create() on the serializer
+        serializer.save(posted_by=self.request.user)
+    
+    def get_queryset(self):
+        """
+        Restricts the queryset only for the 'destroy' action 
+        to ensure users can only delete their own job listings.
+        """
+        if self.action == 'destroy':
+            # Only allow deletion if the job was posted by the requesting user
+            return Job.objects.filter(posted_by=self.request.user)
+        
+        # For all other actions (list, retrieve, update), use the base queryset
+        return super().get_queryset()
+    
     def get_serializer_context(self):
-        return {"request": self.request}
+        return {'request': self.request}
 
 
 
-class JobDetailAPIView(generics.RetrieveAPIView):
-    queryset = Job.objects.all()
-    serializer_class = JobSerializer
-    permission_classes = [permissions.AllowAny]
+# class JobListAPIView(generics.ListAPIView):
+#     queryset = Job.objects.all().order_by('-created_at')
+#     serializer_class = JobSerializer
+#     permission_classes = [permissions.AllowAny]
 
-    def get_serializer_context(self):
-        return {"request": self.request}
+#     search_fields = ['title', 'company_name', 'location']
+#     ordering_fields = ['created_at']
+#     ordering = ['-created_at']
+
+#     def get_serializer_context(self):
+#         return {"request": self.request}
+
+
+
+# class JobDetailAPIView(generics.RetrieveAPIView):
+#     queryset = Job.objects.all()
+#     serializer_class = JobSerializer
+#     permission_classes = [permissions.AllowAny]
+
+#     def get_serializer_context(self):
+#         return {"request": self.request}
 
     
 
 
-class JobCreateAPIView(generics.CreateAPIView):
-    queryset = Job.objects.all()
-    serializer_class = JobCreateSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# class JobCreateAPIView(generics.CreateAPIView):
+#     queryset = Job.objects.all()
+#     serializer_class = JobCreateSerializer
+#     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(posted_by=self.request.user)
-        return Response(serializer.data)
-        
+#     def perform_create(self, serializer):
+#         serializer.save(posted_by=self.request.user)
+#         return Response(serializer.data)
+      
+
+
+# class JobDeleteAPIView(generics.DestroyAPIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_queryset(self):
+#         # Only allow deleting jobs the user posted
+#         return Job.objects.filter(posted_by=self.request.user)
+    
 
 
 class ApplyJobAPIView(APIView):
