@@ -1,0 +1,23 @@
+from django.urls import path
+from rest_framework.routers import DefaultRouter
+from . import views
+
+
+router = DefaultRouter()
+router.register(r'profile', views.ProfileViewSet, basename='profile') #http://127.0.0.1:8000/api/profile/me/\
+router.register('jobs', views.JobViewSet)
+
+urlpatterns = [
+    path('hello/', views.hello),
+    # /api/jobs/
+    # api/jobs/pk
+    # POST /jobs/create/
+    # DELETE /api/jobs/12/delete/
+    path('jobs/<int:job_id>/apply/', views.ApplyJobAPIView.as_view(), name='apply-job'), #POST /jobs/<job_id>/apply/
+] + router.urls
+
+
+
+#! Make Job View into one by combining other job views.
+#! Use Router for that. 
+#! 

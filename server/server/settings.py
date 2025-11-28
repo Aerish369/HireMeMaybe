@@ -1,5 +1,10 @@
 from pathlib import Path
 import environ
+<<<<<<< HEAD
+=======
+from datetime import timedelta
+# import os
+>>>>>>> origin/main
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,6 +19,10 @@ environ.Env.read_env(BASE_DIR/ '.env')
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+<<<<<<< HEAD
+=======
+#! Environment Variable used for protection. 
+>>>>>>> origin/main
 DEBUG = env('DEBUG', cast=bool, default=False)
 
 ALLOWED_HOSTS = []
@@ -30,6 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+<<<<<<< HEAD
+=======
+    'djoser',
+>>>>>>> origin/main
     'corsheaders',
     'user',
     'api',
@@ -118,6 +131,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+<<<<<<< HEAD
+=======
+# Media
+#! For the image upload feature. Mentioning the path. 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+>>>>>>> origin/main
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -129,8 +150,54 @@ INTERNAL_IPS = [
     # ...
 ]
 
+<<<<<<< HEAD
 AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False, 
 }
+=======
+#! Setting default user to the User model of user app. 
+
+AUTH_USER_MODEL = 'user.User'
+
+REST_FRAMEWORK = {
+    #! For pagination
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+
+    #! For deciam value in API to return decimal instead of string
+    'COERCE_DECIMAL_TO_STRING': False, 
+
+    #! For JWT Auth
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+
+    #! For Django Filter
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+}
+
+
+#! Customizing the serializer that is responsible for the creation of user. To take first_name and last_name as they are registering users. 
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user_create': 'user.serializers.UserCreateSerializer',
+        'current_user': 'user.serializers.UserSerializer'
+    }
+}
+
+#! Updating the jwt token access time to avoid expiration in short time. 
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT',),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=5)
+    
+}
+>>>>>>> origin/main
