@@ -1,7 +1,10 @@
 from pathlib import Path
 import environ
+<<<<<<< HEAD
+=======
 from datetime import timedelta
 # import os
+>>>>>>> origin/main
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,7 +19,10 @@ environ.Env.read_env((BASE_DIR/ '.env'))
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+<<<<<<< HEAD
+=======
 #! Environment Variable used for protection. 
+>>>>>>> origin/main
 DEBUG = env('DEBUG', cast=bool, default=False)
 
 ALLOWED_HOSTS = []
@@ -33,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+<<<<<<< HEAD
+=======
     'djoser',
+>>>>>>> origin/main
     'corsheaders',
     'user',
     'api',
@@ -122,11 +131,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+<<<<<<< HEAD
+=======
 # Media
 #! For the image upload feature. Mentioning the path. 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+>>>>>>> origin/main
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -138,6 +150,13 @@ INTERNAL_IPS = [
     # ...
 ]
 
+<<<<<<< HEAD
+AUTH_USER_MODEL = 'user.User'
+
+REST_FRAMEWORK = {
+    'COERCE_DECIMAL_TO_STRING': False, 
+}
+=======
 #! Setting default user to the User model of user app. 
 
 AUTH_USER_MODEL = 'user.User'
@@ -181,3 +200,4 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=5)
     
 }
+>>>>>>> origin/main
