@@ -34,6 +34,8 @@ class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gen
             serializer.save()
             return Response(serializer.data)
 
+
+
 class JobViewSet(ModelViewSet):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
@@ -69,51 +71,6 @@ class JobViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'request': self.request}
 
-
-
-# class JobListAPIView(generics.ListAPIView):
-#     queryset = Job.objects.all().order_by('-created_at')
-#     serializer_class = JobSerializer
-#     permission_classes = [permissions.AllowAny]
-
-#     search_fields = ['title', 'company_name', 'location']
-#     ordering_fields = ['created_at']
-#     ordering = ['-created_at']
-
-#     def get_serializer_context(self):
-#         return {"request": self.request}
-
-
-
-# class JobDetailAPIView(generics.RetrieveAPIView):
-#     queryset = Job.objects.all()
-#     serializer_class = JobSerializer
-#     permission_classes = [permissions.AllowAny]
-
-#     def get_serializer_context(self):
-#         return {"request": self.request}
-
-    
-
-
-# class JobCreateAPIView(generics.CreateAPIView):
-#     queryset = Job.objects.all()
-#     serializer_class = JobCreateSerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def perform_create(self, serializer):
-#         serializer.save(posted_by=self.request.user)
-#         return Response(serializer.data)
-      
-
-
-# class JobDeleteAPIView(generics.DestroyAPIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get_queryset(self):
-#         # Only allow deleting jobs the user posted
-#         return Job.objects.filter(posted_by=self.request.user)
-    
 
 
 class ApplyJobAPIView(APIView):
