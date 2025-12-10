@@ -1,0 +1,15 @@
+#STUDENT Table 
+    CREATE TABLE Student{
+          id int not null,
+          name varchar(45) DEFAULT NULL
+          phanenum varchar(45) DEFAULT NULL,
+          PRIMARY KEY(ID)},
+
+#desc Students,
+#insert into student (id,name,phonenum)
+            value(1.'Ayush','9812345678'),
+#insert into student (......)
+            values(.....)
+#select * from students,
+#Update students set name = 'Rosy'
+            where id = 5;
