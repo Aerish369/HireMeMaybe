@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.contrib import admin
 
 
 class Skill(models.Model):
@@ -13,21 +12,40 @@ class Skill(models.Model):
         ordering = ['name']
 
 
+class Profile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='profile'
+    )
+    phone = models.CharField(max_length=255)
+    birth_date = models.DateField(null=True, blank=True)
+    location = models.CharField(max_length=150, blank=True)
+    skills = models.ManyToManyField(Skill, related_name='profiles', blank=True)
+    experience = models.TextField(blank=True)
+    education = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.email
+
+    class Meta:
+        ordering = ['user__first_name', 'user__last_name']
+
+
 class Job(models.Model):
     title = models.CharField(max_length=150)
     description = models.TextField()
     company_name = models.CharField(max_length=150)
     location = models.CharField(max_length=150, blank=True)
-
     required_skills = models.ManyToManyField(Skill, related_name='jobs')
-
     posted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         related_name='posted_jobs'
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -45,47 +63,12 @@ class Application(models.Model):
         on_delete=models.CASCADE,
         related_name='applications'
     )
-
     cover_letter = models.TextField(blank=True)
-    resume = models.FileField(upload_to='resumes/', blank=True, null=True)  
+    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
     applied_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('job', 'applicant')  # prevent duplicate applications
+        unique_together = ('job', 'applicant')
 
     def __str__(self):
         return f"{self.applicant.email} applied to {self.job.title}"
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='profile'
-    )
-    phone = models.CharField(max_length=255)
-    birth_date = models.DateField(null=True, blank=True)
-    location = models.CharField(max_length=150, blank=True) 
-
-    skills = models.ManyToManyField(Skill, related_name='profiles', blank=True)
-    experience = models.TextField(blank=True) 
-    education = models.TextField(blank=True) 
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.user.get_full_name() or self.user.email
-
-    @admin.display(ordering='user__first_name')
-    def first_name(self):
-        return self.user.first_name
-
-    @admin.display(ordering='user__last_name')
-    def last_name(self):
-        return self.user.last_name
-
-    class Meta:
-        ordering = ['user__first_name', 'user__last_name']
-
-

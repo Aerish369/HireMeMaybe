@@ -11,4 +11,4 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']  # keep username optional but unique
 
     def __str__(self):
-        return self.get_full_name() or self.email
+        return self.get_full_name() 
