@@ -10,7 +10,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Profile, Application, Job
-from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer
+from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer,MyApplicationsSerializer
 
 @api_view(['GET'])
 def hello(request):
@@ -107,3 +107,13 @@ class ApplyJobAPIView(APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#! New View for "My Applications"
+class MyApplicationsAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        applications = Application.objects.filter(applicant=user).order_by('-applied_at')
+        serializer = MyApplicationsSerializer(applications, many=True)
+        return Response(serializer.data)

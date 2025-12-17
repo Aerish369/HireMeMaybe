@@ -14,6 +14,8 @@ urlpatterns = [
     # POST /jobs/create/
     # DELETE /api/jobs/12/delete/
     path('jobs/<int:job_id>/apply/', views.ApplyJobAPIView.as_view(), name='apply-job'), #POST /jobs/<job_id>/apply/
+    
+    path('my-applications/', views.MyApplicationsAPIView.as_view(), name='my-applications'),
 ] + router.urls
 
 
