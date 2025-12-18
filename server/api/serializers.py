@@ -92,10 +92,10 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         )
         
 #! New Serializer for "My Applications" feature
-class MyApplicationsSerializer(serializers.ModelSerializer):
-    job_title = serializers.CharField(source='job.title', read_only=True)
+class MyApplicationSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='job.title', read_only=True)
     company_name = serializers.CharField(source='job.company_name', read_only=True)
 
     class Meta:
         model = Application
-        fields = ['id', 'job_title', 'company_name', 'applied_at']
+        fields = ['id', 'title', 'company_name', 'applied_at']
