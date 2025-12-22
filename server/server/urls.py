@@ -13,3 +13,10 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+#! Auth URLS. 
+# Registering Users: http://127.0.0.1:8000/auth/users/
+# Logging in user: http://127.0.0.1:8000/auth/jwt/create
+
+# Profile of the logged in user: http://127.0.0.1:8000/api/profile/me/

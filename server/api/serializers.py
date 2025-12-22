@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Profile, Skill, Job, Application
+from user.serializers import UserSerializer
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -10,11 +11,11 @@ class SkillSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField(read_only=True)
-    skills = SkillSerializer(many=True, read_only=True)
+    user = UserSerializer()
+    skills = SkillSerializer(many=True)
     class Meta: 
         model = Profile
-        fields = ['id', 'user_id', 'phone', 'birth_date', 'location', 'skills', 'experience', 'education']
+        fields = ['id', 'user', 'phone', 'birth_date', 'location', 'skills', 'experience', 'education']
 
 
 #! This one shows: required skills, who posted it, important fields
@@ -93,9 +94,8 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         
 #! New Serializer for "My Applications" feature
 class MyApplicationSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(source='job.title', read_only=True)
-    company_name = serializers.CharField(source='job.company_name', read_only=True)
+    job = JobCreateSerializer()
 
     class Meta:
         model = Application
-        fields = ['id', 'title', 'company_name', 'applied_at']
+        fields = ['id', 'job', 'applied_at']

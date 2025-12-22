@@ -10,6 +10,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Profile, Application, Job
+from .permissions import IsEmployer, IsEmployee, IsOwnerOrReadOnly
 from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer,MyApplicationSerializer
 
 @api_view(['GET'])
@@ -38,11 +39,17 @@ class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gen
 
 class JobViewSet(ModelViewSet):
     queryset = Job.objects.all()
-    serializer_class = JobSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     search_fields = ['title', 'company_name', 'location']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+
+    def get_permissions(self):
+        """Different permissions for different actions."""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsEmployer(), IsOwnerOrReadOnly()]  # ONLY Employer
+
+        # list + retrieve → open
+        return [permissions.IsAuthenticatedOrReadOnly()]
 
     def get_serializer_class(self):
         """Returns JobCreateSerializer for POST/create, and JobSerializer for all other actions."""
@@ -55,26 +62,14 @@ class JobViewSet(ModelViewSet):
         # This will use JobCreateSerializer based on get_serializer_class()
         # The save() method calls create() on the serializer
         serializer.save(posted_by=self.request.user)
-    
-    def get_queryset(self):
-        """
-        Restricts the queryset only for the 'destroy' action 
-        to ensure users can only delete their own job listings.
-        """
-        if self.action == 'destroy':
-            # Only allow deletion if the job was posted by the requesting user
-            return Job.objects.filter(posted_by=self.request.user)
-        
-        # For all other actions (list, retrieve, update), use the base queryset
-        return super().get_queryset()
-    
+
     def get_serializer_context(self):
         return {'request': self.request}
 
 
 
 class ApplyJobAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser] 
     serializer_class = ApplicationCreateSerializer
 
@@ -110,7 +105,7 @@ class ApplyJobAPIView(APIView):
     
 #! New View for "My Applications"
 class MyApplicationsAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsEmployee]
 
     def get(self, request):
         user = request.user
