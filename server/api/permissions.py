@@ -1,10 +1,14 @@
 from rest_framework import permissions
 
+
 class IsEmployer(permissions.BasePermission):
+    message = "Only employers can perform this action."
+
     def has_permission(self, request, view):
-        if request.method in ('GET', 'HEAD', 'OPTIONS'):
-            return True
-        return request.user.is_authenticated and request.user.role == "employer"
+        return (
+            request.user.is_authenticated
+            and request.user.role == "employer"
+        )
 
 
 class IsEmployee(permissions.BasePermission):
@@ -21,4 +25,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         # For PUT/PATCH/DELETE: user must own the job
+        return obj.posted_by == request.user
+    
+class IsJobOwner(permissions.BasePermission):
+    message = "You can only view applications for jobs you posted."
+
+    def has_object_permission(self, request, view, obj):
         return obj.posted_by == request.user
