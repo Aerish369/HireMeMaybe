@@ -185,11 +185,13 @@ REST_FRAMEWORK = {
 #! Customizing the serializer that is responsible for the creation of user. To take first_name and last_name as they are registering users. 
 
 DJOSER = {
+    'USER_CREATE_PASSWORD_RETYPE': False,
     'SERIALIZERS': {
         'user_create': 'user.serializers.UserCreateSerializer',
-        'current_user': 'user.serializers.UserSerializer'
+        'current_user': 'user.serializers.UserSerializer',
     }
 }
+
 
 #! Updating the jwt token access time to avoid expiration in short time. 
 
