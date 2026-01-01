@@ -20,3 +20,5 @@ if settings.DEBUG:
 # Logging in user: http://127.0.0.1:8000/auth/jwt/create
 
 # Profile of the logged in user: http://127.0.0.1:8000/api/profile/me/
+
+#To view applications in the job posted by the Employer: http://127.0.0.1:8000/api/jobs/12/applications/

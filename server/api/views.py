@@ -10,7 +10,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Profile, Application, Job
-from .permissions import IsEmployer, IsEmployee, IsOwnerOrReadOnly
+from .permissions import IsEmployer, IsEmployee, IsOwnerOrReadOnly, IsJobOwner
 from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer,MyApplicationSerializer
 
 @api_view(['GET'])
@@ -45,6 +45,9 @@ class JobViewSet(ModelViewSet):
 
     def get_permissions(self):
         """Different permissions for different actions."""
+        if self.action == 'applications':
+            return [IsEmployer(), IsJobOwner()]
+    
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsEmployer(), IsOwnerOrReadOnly()]  # ONLY Employer
 
@@ -65,6 +68,23 @@ class JobViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
+    
+    @action(
+        detail=True,
+        methods=['get'],
+        url_path='applications',
+    )
+    def applications(self, request, pk=None):
+        """
+        View all applications for a specific job.
+        Only the employer who posted the job can access this.
+        """
+        job = self.get_object()  # triggers object-level permission check
+
+        applications = Application.objects.filter(job=job).order_by('-applied_at')
+        serializer = ApplicationSerializer(applications, many=True)
+
+        return Response(serializer.data)
 
 
 
