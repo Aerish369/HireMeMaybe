@@ -7,8 +7,6 @@ import {
   FileText, 
   PlusCircle, 
   LayoutDashboard,
-  Building2,
-  Settings
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -19,13 +17,13 @@ const Sidebar = () => {
   const linkClass = ({ isActive }) => `
     flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
     ${isActive 
-      ? 'bg-primary text-primary-foreground' 
-      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+      ? 'bg-primary text-white' 
+      : 'text-gray-500 hover:bg-gray-100 hover:text-primary'
     }
   `;
 
   return (
-    <aside className="hidden lg:block w-64 bg-card border-r border-border min-h-[calc(100vh-4rem)] p-4">
+    <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)] p-4">
       <nav className="space-y-2">
         {isEmployer() && (
           <>
@@ -61,7 +59,7 @@ const Sidebar = () => {
           </>
         )}
 
-        <div className="pt-4 mt-4 border-t border-border">
+        <div className="pt-4 mt-4 border-t border-gray-200">
           <NavLink to="/profile" className={linkClass}>
             <User className="w-5 h-5" />
             <span className="font-medium">Profile</span>

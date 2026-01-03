@@ -1,20 +1,49 @@
 import axiosClient from './axiosClient';
 
-export const applicationsAPI = {
-  // Apply to a job (Employee only)
-  applyToJob: async (jobId, applicationData = {}) => {
-    const response = await axiosClient.post(`/api/jobs/${jobId}/apply/`, applicationData);
+const applicationsAPI = {
+  /**
+   * Apply to a job
+   * @param {string|number} jobId - ID of the job
+   * @param {object} data - { cover_letter: string, resume: File|null }
+   */
+  applyToJob: async (jobId, data = {}) => {
+    const formData = new FormData();
+
+    // Append cover_letter if exists
+    if (data.cover_letter) {
+      formData.append('cover_letter', data.cover_letter);
+    }
+
+    // Append resume if exists
+    if (data.resume) {
+      formData.append('resume', data.resume);
+    }
+
+    const response = await axiosClient.post(
+      `/api/jobs/${jobId}/apply/`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
     return response.data;
   },
 
-  // Check application status for a job
+  /**
+   * Check application status for a job
+   * @param {string|number} jobId
+   */
   getApplicationStatus: async (jobId) => {
     const response = await axiosClient.get(`/api/jobs/${jobId}/apply/`);
     return response.data;
   },
 
-  
-  // Get all my applications (Employee only)
+  /**
+   * Get all applications of the logged-in user
+   */
   getMyApplications: async () => {
     const response = await axiosClient.get('/api/my-applications/');
     return response.data;

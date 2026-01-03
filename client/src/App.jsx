@@ -28,11 +28,11 @@ const AppLayout = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-white text-darkText">
       <Navbar />
-      <div className="flex flex-1">
+      <div className="flex flex-1 bg-lightBg">
         <Sidebar />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto p-4">
           <AppRoutes />
         </main>
       </div>

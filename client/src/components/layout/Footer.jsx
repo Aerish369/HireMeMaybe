@@ -4,18 +4,18 @@ import { Briefcase, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-card border-t border-border mt-auto">
+    <footer className="bg-white border-t border-gray-200 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-                <Briefcase className="w-5 h-5 text-primary-foreground" />
+                <Briefcase className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-foreground">JobPortal</span>
+              <span className="text-xl font-bold text-darkText">HireMeMaybe</span>
             </Link>
-            <p className="text-muted-foreground max-w-md">
+            <p className="text-gray-500 max-w-md">
               Find your dream job or hire the perfect candidate. 
               We connect talented professionals with great opportunities.
             </p>
@@ -23,20 +23,20 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
+            <h4 className="font-semibold text-darkText mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/jobs" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/jobs" className="text-gray-500 hover:text-primary transition-colors">
                   Browse Jobs
                 </Link>
               </li>
               <li>
-                <Link to="/register" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/register" className="text-gray-500 hover:text-primary transition-colors">
                   Create Account
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/login" className="text-gray-500 hover:text-primary transition-colors">
                   Sign In
                 </Link>
               </li>
@@ -45,17 +45,17 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Contact</h4>
+            <h4 className="font-semibold text-darkText mb-4">Contact</h4>
             <ul className="space-y-3">
-              <li className="flex items-center gap-2 text-muted-foreground">
+              <li className="flex items-center gap-2 text-gray-500">
                 <Mail className="w-4 h-4" />
                 <span>support@jobportal.com</span>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
+              <li className="flex items-center gap-2 text-gray-500">
                 <Phone className="w-4 h-4" />
                 <span>+1 (555) 123-4567</span>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
+              <li className="flex items-center gap-2 text-gray-500">
                 <MapPin className="w-4 h-4" />
                 <span>San Francisco, CA</span>
               </li>
@@ -63,7 +63,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground text-sm">
+        <div className="mt-8 pt-8 border-t border-gray-200 text-center text-gray-400 text-sm">
           <p>&copy; {new Date().getFullYear()} JobPortal. All rights reserved.</p>
         </div>
       </div>

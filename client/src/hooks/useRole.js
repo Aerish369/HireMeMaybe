@@ -1,13 +1,15 @@
 import { useAuth } from './useAuth';
 
 export const useRole = () => {
-  const { profile, isEmployer, isEmployee } = useAuth();
-  
+  const { getRole, isEmployer, isEmployee } = useAuth();
+
+  const role = getRole();
+
   return {
-    role: profile?.role || null,
+    role,
     isEmployer: isEmployer(),
     isEmployee: isEmployee(),
-    hasRole: (requiredRole) => profile?.role === requiredRole,
+    hasRole: (requiredRole) => role === requiredRole,
   };
 };
 

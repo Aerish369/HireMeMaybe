@@ -50,25 +50,25 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-white text-black">
+    <div className="min-h-screen flex bg-gray-50 text-darkText">
       {/* Left Panel - Form */}
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:max-w-md">
           <div className="mb-8">
             <Link to="/" className="flex items-center gap-2 mb-8">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-black text-white">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary text-white">
                 <Briefcase className="w-6 h-6" />
               </div>
-              <span className="text-2xl font-bold">JobPortal</span>
+              <span className="text-2xl font-bold text-darkText">HireMeMaybe</span>
             </Link>
-            <h1 className="text-3xl font-bold">Welcome back</h1>
-            <p className="mt-2 text-gray-700">
+            <h1 className="text-3xl font-bold text-darkText">Welcome back</h1>
+            <p className="mt-2 text-gray-600">
               Sign in to your account to continue
             </p>
           </div>
 
           {apiError && (
-            <div className="mb-6 p-4 rounded-lg border border-black bg-gray-100 text-black text-sm">
+            <div className="mb-6 p-4 rounded-lg border border-red-300 bg-red-50 text-red-700 text-sm">
               {apiError}
             </div>
           )}
@@ -82,7 +82,7 @@ const Login = () => {
               onChange={handleChange}
               error={errors.email}
               placeholder="you@example.com"
-              leftIcon={<Mail className="w-5 h-5" />}
+              leftIcon={<Mail className="w-5 h-5 text-gray-400" />}
             />
 
             <Input
@@ -93,7 +93,7 @@ const Login = () => {
               onChange={handleChange}
               error={errors.password}
               placeholder="Enter your password"
-              leftIcon={<Lock className="w-5 h-5" />}
+              leftIcon={<Lock className="w-5 h-5 text-gray-400" />}
             />
 
             <Button
@@ -108,9 +108,9 @@ const Login = () => {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-gray-700">
+          <p className="mt-8 text-center text-gray-600">
             Don't have an account?{' '}
-            <Link to="/register" className="font-medium hover:underline">
+            <Link to="/register" className="font-medium text-primary hover:underline">
               Sign up for free
             </Link>
           </p>
@@ -118,7 +118,7 @@ const Login = () => {
       </div>
 
       {/* Right Panel - Decorative */}
-      <div className="hidden lg:flex lg:flex-1 items-center justify-center p-12 bg-white text-black">
+      <div className="hidden lg:flex lg:flex-1 items-center justify-center p-12 bg-primary text-white rounded-l-3xl">
         <div className="text-center">
           <Briefcase className="w-20 h-20 mx-auto mb-6 opacity-90" />
           <h2 className="text-3xl font-bold mb-4">Find Your Dream Job</h2>

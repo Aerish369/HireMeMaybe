@@ -58,88 +58,86 @@ const EmployerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] bg-white text-black">
+      <div className="flex items-center justify-center min-h-[50vh] bg-gray-50">
         <Loader size="lg" text="Loading dashboard..." />
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 bg-white text-black animate-fade-in">
+    <div className="max-w-6xl mx-auto px-4 py-8 bg-gray-50 animate-fade-in">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-3xl font-bold text-darkText">
           Welcome back, {profile?.first_name || user?.email?.split('@')[0]}!
         </h1>
-        <p className="mt-2 text-gray-700">
+        <p className="mt-2 text-gray-600">
           Manage your job postings and find great talent
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gray-100 rounded-xl border border-black p-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-700">Active Jobs</p>
+              <p className="text-sm text-gray-500">Active Jobs</p>
               <p className="text-3xl font-bold mt-1">{jobs.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-              <Briefcase className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Briefcase className="w-6 h-6 text-primary" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-100 rounded-xl border border-black p-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-700">Total Views</p>
+              <p className="text-sm text-gray-500">Total Views</p>
               <p className="text-3xl font-bold mt-1">
                 {jobs.reduce((acc, job) => acc + (job.views || 0), 0)}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-              <Eye className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Eye className="w-6 h-6 text-primary" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-100 rounded-xl border border-black p-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-700">Total Applicants</p>
+              <p className="text-sm text-gray-500">Total Applicants</p>
               <p className="text-3xl font-bold mt-1">
                 {jobs.reduce((acc, job) => acc + (job.applicants_count || 0), 0)}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-              <Users className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Users className="w-6 h-6 text-primary" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Quick Action */}
-      <div className="bg-gray-100 rounded-xl p-6 mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold">Ready to find great talent?</h2>
-            <p className="text-gray-700">Post a new job and start receiving applications</p>
-          </div>
-          <Link to="/jobs/create">
-            <Button variant="secondary" size="lg">
-              <PlusCircle className="w-5 h-5 mr-2" />
-              Post a Job
-            </Button>
-          </Link>
+      <div className="bg-white rounded-xl p-6 mb-8 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-darkText">Ready to find great talent?</h2>
+          <p className="text-gray-600">Post a new job and start receiving applications</p>
         </div>
+        <Link to="/jobs/create">
+          <Button variant="primary" size="lg">
+            <PlusCircle className="w-5 h-5 mr-2" />
+            Post a Job
+          </Button>
+        </Link>
       </div>
 
       {/* My Jobs */}
-      <div className="bg-gray-100 rounded-xl border border-black overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-black flex items-center justify-between">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Briefcase className="w-5 h-5" />
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-xl font-semibold flex items-center gap-2 text-darkText">
+            <Briefcase className="w-5 h-5 text-primary" />
             My Job Postings
           </h2>
           <Link to="/jobs/create">
@@ -165,20 +163,20 @@ const EmployerDashboard = () => {
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-black">
+          <div className="divide-y divide-gray-200">
             {jobs.map((job) => (
               <Link
                 key={job.id}
                 to={`/jobs/${job.id}`}
-                className="flex items-center justify-between p-4 hover:bg-gray-200 transition-colors"
+                className="flex items-center justify-between p-4 hover:bg-primary/5 transition-colors rounded-lg"
               >
                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
-                    <Building2 className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-6 h-6 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold truncate">{job.title}</p>
-                    <div className="flex items-center gap-3 text-sm text-gray-700">
+                    <p className="font-semibold truncate text-darkText">{job.title}</p>
+                    <div className="flex items-center gap-3 text-sm text-gray-500">
                       {job.location && (
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
@@ -192,24 +190,24 @@ const EmployerDashboard = () => {
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {job.applicants_count > 0 && (
-                    <span className="px-2 py-1 text-sm border border-black rounded">
+                    <span className="px-2 py-1 text-sm border border-gray-300 rounded bg-gray-100">
                       {job.applicants_count} applicant{job.applicants_count !== 1 ? 's' : ''}
                     </span>
                   )}
                   <Link 
                     to={`/jobs/${job.id}/edit`}
                     onClick={(e) => e.stopPropagation()}
-                    className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="p-2 rounded-lg hover:bg-primary/5 transition-colors"
                   >
-                    <Edit className="w-4 h-4 text-gray-700" />
+                    <Edit className="w-4 h-4 text-primary" />
                   </Link>
                   <button
                     onClick={(e) => handleDelete(job.id, e)}
-                    className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="p-2 rounded-lg hover:bg-red-100 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4 text-gray-700" />
+                    <Trash2 className="w-4 h-4 text-red-600" />
                   </button>
-                  <ChevronRight className="w-5 h-5 text-gray-700" />
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </div>
               </Link>
             ))}

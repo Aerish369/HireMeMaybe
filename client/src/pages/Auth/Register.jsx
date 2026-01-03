@@ -35,45 +35,15 @@ const Register = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
     setApiError('');
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   const validationErrors = validateRegistration(formData);
-  //   if (hasErrors(validationErrors)) {
-  //     setErrors(validationErrors);
-  //     return;
-  //   }
-
-  //   setIsSubmitting(true);
-  //   setApiError('');
-
-  //   const result = await register(formData);
-
-  //   if (result.success) {
-  //     navigate('/jobs');
-  //   } else {
-  //     setApiError(parseError(result.error));
-  //   }
-
-  //   setIsSubmitting(false);
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('=== REGISTER FORM SUBMITTED ===');
-    console.log('Form data:', formData);
 
     const validationErrors = validateRegistration(formData);
-    console.log('Validation errors:', validationErrors);
-    
     if (hasErrors(validationErrors)) {
-      console.log('Validation failed, stopping submission');
       setErrors(validationErrors);
       return;
     }
@@ -81,36 +51,25 @@ const Register = () => {
     setIsSubmitting(true);
     setApiError('');
 
-    console.log('Calling register function...');
-    
     try {
       const result = await register(formData);
-      console.log('Register result:', result);
-
       if (result.success) {
-        console.log('Registration successful, navigating to /jobs');
         navigate('/jobs');
       } else {
-        console.error('Registration failed with error:', result.error);
-        const errorMessage = parseError(result.error);
-        console.log('Parsed error message:', errorMessage);
-        setApiError(errorMessage);
+        setApiError(parseError(result.error));
       }
     } catch (error) {
-      console.error('Exception caught in handleSubmit:', error);
       setApiError('An unexpected error occurred. Please try again.');
     } finally {
-      console.log('Setting isSubmitting to false');
       setIsSubmitting(false);
     }
   };
 
-
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Left Panel */}
-      <div className="hidden lg:flex lg:flex-1 items-center justify-center p-12">
-        <div className="text-center text-black">
+      <div className="hidden lg:flex lg:flex-1 items-center justify-center p-12 bg-primary text-white rounded-l-3xl">
+        <div className="text-center">
           <Briefcase className="w-20 h-20 mx-auto mb-6 opacity-90" />
           <h2 className="text-3xl font-bold mb-4">Start Your Journey</h2>
           <p className="text-lg opacity-90 max-w-md">
@@ -124,17 +83,17 @@ const Register = () => {
       <div className="flex-1 flex flex-col justify-center px-6 lg:px-24 py-12">
         <div className="mx-auto w-full max-w-md">
           <Link to="/" className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-black" />
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+              <Briefcase className="w-6 h-6" />
             </div>
-            <span className="text-2xl font-bold text-black">JobPortal</span>
+            <span className="text-2xl font-bold text-darkText">HireMeMaybe</span>
           </Link>
 
-          <h1 className="text-3xl font-bold text-black">Create an account</h1>
+          <h1 className="text-3xl font-bold text-darkText">Create an account</h1>
           <p className="mt-2 text-gray-600">Join our community</p>
 
           {apiError && (
-            <div className="mt-4 p-3 rounded bg-red-100 text-red-700 text-sm">
+            <div className="mt-4 p-3 rounded bg-red-50 border border-red-300 text-red-700 text-sm">
               {apiError}
             </div>
           )}
@@ -146,13 +105,11 @@ const Register = () => {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() =>
-                    setFormData((p) => ({ ...p, role: 'employee' }))
-                  }
-                  className={`p-4 rounded-lg border-2 flex justify-center gap-2 ${
+                  onClick={() => setFormData((p) => ({ ...p, role: 'employee' }))}
+                  className={`p-4 rounded-lg border-2 flex justify-center gap-2 font-medium transition ${
                     formData.role === 'employee'
-                      ? 'border-black bg-gray-100'
-                      : 'border-gray-300'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-gray-300 text-darkText hover:bg-primary/5'
                   }`}
                 >
                   <User className="w-5 h-5" />
@@ -161,13 +118,11 @@ const Register = () => {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setFormData((p) => ({ ...p, role: 'employer' }))
-                  }
-                  className={`p-4 rounded-lg border-2 flex justify-center gap-2 ${
+                  onClick={() => setFormData((p) => ({ ...p, role: 'employer' }))}
+                  className={`p-4 rounded-lg border-2 flex justify-center gap-2 font-medium transition ${
                     formData.role === 'employer'
-                      ? 'border-black bg-gray-100'
-                      : 'border-gray-300'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-gray-300 text-darkText hover:bg-primary/5'
                   }`}
                 >
                   <Building2 className="w-5 h-5" />
@@ -184,7 +139,7 @@ const Register = () => {
               onChange={handleChange}
               error={errors.username}
               placeholder="john_doe"
-              leftIcon={<User className="w-5 h-5 text-black" />}
+              leftIcon={<User className="w-5 h-5 text-gray-400" />}
             />
 
             {/* Name */}
@@ -214,7 +169,7 @@ const Register = () => {
               onChange={handleChange}
               error={errors.email}
               placeholder="you@example.com"
-              leftIcon={<Mail className="w-5 h-5 text-black" />}
+              leftIcon={<Mail className="w-5 h-5 text-gray-400" />}
             />
 
             {/* Password */}
@@ -226,13 +181,14 @@ const Register = () => {
               onChange={handleChange}
               error={errors.password}
               placeholder="At least 8 characters"
-              leftIcon={<Lock className="w-5 h-5 text-black" />}
+              leftIcon={<Lock className="w-5 h-5 text-gray-400" />}
             />
 
             <Button
               type="submit"
               fullWidth
               size="lg"
+              variant="primary"
               loading={isSubmitting}
             >
               Create Account
@@ -242,7 +198,7 @@ const Register = () => {
 
           <p className="mt-8 text-center text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-black">
+            <Link to="/login" className="font-medium text-primary hover:underline">
               Sign in
             </Link>
           </p>

@@ -1,23 +1,31 @@
+/* Root Container */
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background-color: #ffffff; /* White background for MeroJobs */
+  color: #000000; /* Black text */
 }
 
+/* Logo */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  transition: filter 300ms, transform 300ms;
 }
 
+/* Hover effect for logos */
+.logo:hover {
+  filter: drop-shadow(0 0 2em #00000066); /* subtle black shadow */
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa); /* keep React logo color */
+}
+
+/* Spin animation for React logo */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -33,10 +41,21 @@
   }
 }
 
+/* Card */
 .card {
   padding: 2em;
+  background-color: #f9f9f9; /* light gray background for cards */
+  border-radius: 1rem;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+/* Links for docs or info */
 .read-the-docs {
-  color: #888;
+  color: #555555; /* darker gray for better contrast */
+  text-decoration: underline;
+  transition: color 200ms;
+}
+.read-the-docs:hover {
+  color: #000000; /* black on hover */
 }

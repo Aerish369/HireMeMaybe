@@ -4,35 +4,22 @@ import { jobsAPI } from '../../api/jobs';
 import Button from '../../components/ui/Buttons.jsx';
 import Input from '../../components/ui/input.jsx';
 import Loader from '../../components/ui/Loader.jsx';
-import { validateJob, hasErrors } from '../../utils/validate';
-import { parseError } from '../../utils/helpers';
 import { toast } from 'sonner';
-import { 
-  ArrowLeft,
-  Briefcase,
-  MapPin,
-  DollarSign,
-  FileText,
-  Save,
-  Building2
-} from 'lucide-react';
+import { ArrowLeft, Save, X, Plus } from 'lucide-react';
 
 const EditJob = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     title: '',
+    description: '',
     company: '',
     location: '',
-    job_type: 'full_time',
-    description: '',
-    requirements: '',
-    salary_min: '',
-    salary_max: '',
-    experience_level: 'mid',
-    skills: '',
+    required_skills: [],
   });
+
+  const [skillInput, setSkillInput] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,15 +33,10 @@ const EditJob = () => {
       const job = await jobsAPI.getJob(id);
       setFormData({
         title: job.title || '',
-        company: job.company || '',
-        location: job.location || '',
-        job_type: job.job_type || 'full_time',
         description: job.description || '',
-        requirements: job.requirements || '',
-        salary_min: job.salary_min || '',
-        salary_max: job.salary_max || '',
-        experience_level: job.experience_level || 'mid',
-        skills: job.skills ? job.skills.join(', ') : '',
+        company: job.company_name || '',
+        location: job.location || '',
+        required_skills: job.required_skills?.map(s => s.name) || [],
       });
     } catch (err) {
       toast.error('Failed to load job details');
@@ -70,28 +52,57 @@ const EditJob = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  const addSkill = () => {
+    const skill = skillInput.trim();
+    if (skill && !formData.required_skills.includes(skill)) {
+      setFormData(prev => ({ ...prev, required_skills: [...prev.required_skills, skill] }));
+      setSkillInput('');
+    }
+  };
+
+  const removeSkill = (skill) => {
+    setFormData(prev => ({
+      ...prev,
+      required_skills: prev.required_skills.filter(s => s !== skill)
+    }));
+  };
+
+  const handleSkillKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSkill();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateJob(formData);
-    if (hasErrors(validationErrors)) {
-      setErrors(validationErrors);
+
+    const newErrors = {};
+    if (!formData.title.trim()) newErrors.title = 'Title is required';
+    if (!formData.description.trim()) newErrors.description = 'Description is required';
+    if (!formData.company.trim()) newErrors.company = 'Company is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     setIsSubmitting(true);
     try {
+      // Backend expects 'required_skills' array for JobCreateSerializer
       const jobData = {
-        ...formData,
-        salary_min: formData.salary_min ? parseInt(formData.salary_min) : null,
-        salary_max: formData.salary_max ? parseInt(formData.salary_max) : null,
-        skills: formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [],
+        title: formData.title,
+        description: formData.description,
+        company_name: formData.company,
+        location: formData.location,
+        required_skills: formData.required_skills,
       };
 
       await jobsAPI.updateJob(id, jobData);
       toast.success('Job updated successfully!');
       navigate(`/jobs/${id}`);
     } catch (err) {
-      toast.error(parseError(err.response?.data) || 'Failed to update job');
+      toast.error(err.response?.data?.message || 'Failed to update job');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,178 +117,84 @@ const EditJob = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 bg-white text-black animate-fade-in">
-      {/* Back Button */}
-      <Link 
-        to={`/jobs/${id}`}
-        className="inline-flex items-center text-gray-700 hover:text-black transition-colors mb-6"
-      >
+    <div className="max-w-2xl mx-auto px-4 py-8 bg-gray-50 rounded-xl shadow-sm animate-fade-in">
+      <Link to="/employer/dashboard" className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Job
+        Back to Dashboard
       </Link>
 
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Edit Job</h1>
-        <p className="mt-2 text-gray-700">Update job details</p>
-      </div>
+      <h1 className="text-2xl font-bold mb-6">Edit Job</h1>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-gray-100 rounded-xl border border-black overflow-hidden">
-        <div className="p-6 space-y-6">
-          {/* Basic Info */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Briefcase className="w-5 h-5" />
-              Basic Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <Input
-                  label="Job Title *"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  error={errors.title}
-                  placeholder="e.g. Senior Frontend Developer"
-                />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Input
+          label="Title *"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          error={errors.title}
+        />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-2">Description *</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows={6}
+            className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-y ${
+              errors.description ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
+        </div>
+
+        <Input
+          label="Company *"
+          name="company"
+          value={formData.company}
+          onChange={handleChange}
+          error={errors.company}
+        />
+
+        <Input
+          label="Location"
+          name="location"
+          value={formData.location}
+          onChange={handleChange}
+        />
+
+        {/* Skills */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Required Skills</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {formData.required_skills.map((skill, idx) => (
+              <div key={idx} className="flex items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-sm">
+                {skill}
+                <button type="button" onClick={() => removeSkill(skill)} className="hover:text-red-600">
+                  <X className="w-3 h-3" />
+                </button>
               </div>
-              <Input
-                label="Company Name"
-                name="company"
-                value={formData.company}
-                onChange={handleChange}
-                placeholder="Your company name"
-                leftIcon={<Building2 className="w-5 h-5" />}
-              />
-              <Input
-                label="Location *"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                error={errors.location}
-                placeholder="e.g. San Francisco, CA or Remote"
-                leftIcon={<MapPin className="w-5 h-5" />}
-              />
-            </div>
+            ))}
           </div>
-
-          {/* Job Type & Experience */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Job Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Job Type</label>
-                <select
-                  name="job_type"
-                  value={formData.job_type}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-black bg-white text-black focus:outline-none transition-all duration-200"
-                >
-                  <option value="full_time">Full Time</option>
-                  <option value="part_time">Part Time</option>
-                  <option value="contract">Contract</option>
-                  <option value="internship">Internship</option>
-                  <option value="freelance">Freelance</option>
-                  <option value="remote">Remote</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Experience Level</label>
-                <select
-                  name="experience_level"
-                  value={formData.experience_level}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-black bg-white text-black focus:outline-none transition-all duration-200"
-                >
-                  <option value="entry">Entry Level</option>
-                  <option value="mid">Mid Level</option>
-                  <option value="senior">Senior Level</option>
-                  <option value="lead">Lead / Manager</option>
-                  <option value="executive">Executive</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Salary */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <DollarSign className="w-5 h-5" />
-              Compensation
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Minimum Salary (USD/year)"
-                name="salary_min"
-                type="number"
-                value={formData.salary_min}
-                onChange={handleChange}
-                placeholder="e.g. 80000"
-              />
-              <Input
-                label="Maximum Salary (USD/year)"
-                name="salary_max"
-                type="number"
-                value={formData.salary_max}
-                onChange={handleChange}
-                placeholder="e.g. 120000"
-              />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Job Description
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Description *</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={6}
-                  className={`w-full px-4 py-3 rounded-lg border bg-white text-black placeholder:text-gray-500 focus:outline-none transition-all duration-200 resize-none`}
-                  placeholder="Describe the role, responsibilities..."
-                />
-                {errors.description && (
-                  <p className="mt-1.5 text-sm text-black">{errors.description}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Requirements</label>
-                <textarea
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-lg border border-black bg-white text-black placeholder:text-gray-500 focus:outline-none transition-all duration-200 resize-none"
-                  placeholder="List the qualifications, skills, and experience required..."
-                />
-              </div>
-              <div>
-                <Input
-                  label="Skills (comma-separated)"
-                  name="skills"
-                  value={formData.skills}
-                  onChange={handleChange}
-                  placeholder="e.g. React, TypeScript, Node.js"
-                />
-              </div>
-            </div>
+          <div className="flex gap-2">
+            <Input
+              value={skillInput}
+              onChange={e => setSkillInput(e.target.value)}
+              onKeyPress={handleSkillKeyPress}
+              placeholder="Add skill"
+            />
+            <button type="button" onClick={addSkill} className="flex items-center px-2 text-primary hover:text-primary/80">
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        {/* Submit */}
-        <div className="px-6 py-4 border-t border-black flex justify-end gap-3 bg-gray-100">
-          <Link to={`/jobs/${id}`}>
+        <div className="flex gap-3 pt-4">
+          <Link to="/employer/dashboard">
             <Button variant="ghost">Cancel</Button>
           </Link>
-          <Button type="submit" variant="primary" size="lg" loading={isSubmitting}>
-            <Save className="w-5 h-5 mr-2" />
+          <Button type="submit" variant="primary" loading={isSubmitting}>
+            <Save className="w-4 h-4 mr-2" />
             Save Changes
           </Button>
         </div>

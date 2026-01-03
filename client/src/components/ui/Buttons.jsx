@@ -2,7 +2,7 @@ import React from 'react';
 
 const Button = ({
   children,
-  variant = 'primary', // variant still works but styles are now minimal
+  variant = 'primary', // primary or outline
   size = 'md',
   disabled = false,
   loading = false,
@@ -12,7 +12,8 @@ const Button = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles =
+    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const sizes = {
     sm: 'text-sm px-3 py-1.5',
@@ -23,17 +24,27 @@ const Button = ({
 
   const widthClass = fullWidth ? 'w-full' : '';
 
+  // Variant styles
+  let variantStyles = '';
+  if (variant === 'primary') {
+    variantStyles =
+      'bg-blue-600 text-white border border-blue-600 hover:bg-blue-700';
+  } else if (variant === 'outline') {
+    variantStyles =
+      'bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white';
+  }
+
   return (
     <button
       type={type}
       disabled={disabled || loading}
       onClick={onClick}
-      className={`${baseStyles} ${sizes[size]} ${widthClass} ${className} bg-white text-black border border-black hover:bg-gray-100`}
+      className={`${baseStyles} ${sizes[size]} ${widthClass} ${variantStyles} ${className}`}
       {...props}
     >
       {loading && (
         <svg
-          className="animate-spin -ml-1 mr-2 h-4 w-4 text-black"
+          className="animate-spin -ml-1 mr-2 h-4 w-4 text-current"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
