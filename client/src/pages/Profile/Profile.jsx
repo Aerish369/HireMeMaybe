@@ -5,42 +5,77 @@ import Input from '../../components/ui/input.jsx';
 import Loader from '../../components/ui/Loader.jsx';
 import { validateProfile, hasErrors } from '../../utils/validate';
 import { parseError } from '../../utils/helpers';
-import { User, Phone, MapPin, Briefcase, Building2, FileText, Save } from 'lucide-react';
+import { User, Phone, MapPin, Briefcase, Building2, FileText, Save, Calendar, Code } from 'lucide-react';
 import { toast } from 'sonner';
+import axiosClient from '../../api/axiosClient';
 
 const Profile = () => {
-  const { user, profile, updateProfile, loading } = useAuth();
+  const { user, profile, updateProfile, loading, fetchProfile } = useAuth();
   
   const [formData, setFormData] = useState({
+    username: '',
     first_name: '',
     last_name: '',
+    role: 'employee',
     phone: '',
+    birth_date: '',
     location: '',
-    bio: '',
-    company_name: '',
-    website: '',
+    skills: [],
+    experience: '',
+    education: '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableSkills, setAvailableSkills] = useState([]);
+  const [loadingSkills, setLoadingSkills] = useState(false);
 
   useEffect(() => {
-    if (profile) {
+    if (profile && user) {
       setFormData({
-        first_name: profile.first_name || '',
-        last_name: profile.last_name || '',
+        username: user.username || '',
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        role: user.role || 'employee',
         phone: profile.phone || '',
+        birth_date: profile.birth_date || '',
         location: profile.location || '',
-        bio: profile.bio || '',
-        company_name: profile.company_name || '',
-        website: profile.website || '',
+        skills: Array.isArray(profile.skills) ? profile.skills.map(s => s.id || s) : [],
+        experience: profile.experience || '',
+        education: profile.education || '',
       });
     }
-  }, [profile]);
+  }, [profile, user]);
+
+  // Fetch available skills
+  useEffect(() => {
+    const fetchSkills = async () => {
+      setLoadingSkills(true);
+      try {
+        const response = await axiosClient.get('/api/skills/');
+        setAvailableSkills(response.data);
+      } catch (error) {
+        console.error('Failed to fetch skills:', error);
+        toast.error('Failed to load skills');
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+    fetchSkills();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleSkillToggle = (skillId) => {
+    setFormData(prev => {
+      const skills = prev.skills.includes(skillId)
+        ? prev.skills.filter(id => id !== skillId)
+        : [...prev.skills, skillId];
+      return { ...prev, skills };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -54,14 +89,40 @@ const Profile = () => {
 
     setIsSubmitting(true);
 
-    const result = await updateProfile(formData);
-    if (result.success) {
-      toast.success('Profile updated successfully!');
-    } else {
-      toast.error(parseError(result.error));
-    }
+    try {
+      // Format data to match backend expectations (flat structure)
+      const profileData = {
+        username: formData.username,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        role: formData.role,
+        phone: formData.phone,
+        birth_date: formData.birth_date || null,
+        location: formData.location,
+        skill_ids: formData.skills, // Send skill IDs
+        experience: formData.experience,
+        education: formData.education,
+      };
 
-    setIsSubmitting(false);
+      console.log('Sending profile data:', profileData); // Debug log
+
+      const result = await updateProfile(profileData);
+      if (result.success) {
+        toast.success('Profile updated successfully!');
+        // Refetch profile to update state with latest data
+        if (fetchProfile) {
+          await fetchProfile();
+        }
+      } else {
+        console.error('Update failed:', result.error); // Debug log
+        toast.error(parseError(result.error));
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -72,7 +133,7 @@ const Profile = () => {
     );
   }
 
-  const isEmployer = profile?.role === 'employer';
+  const isEmployer = formData.role === 'employer';
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 bg-white text-black animate-fade-in">
@@ -90,7 +151,7 @@ const Profile = () => {
             <User className="w-10 h-10 text-black" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold">{formData.first_name} {formData.last_name || user?.email?.split('@')[0]}</h2>
+            <h2 className="text-2xl font-bold">{formData.first_name} {formData.last_name || formData.username}</h2>
             <p className="text-gray-700">{user?.email}</p>
             <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-black">
               {isEmployer ? (
@@ -108,6 +169,38 @@ const Profile = () => {
 
         {/* Profile Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Account Information */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <User className="w-5 h-5" /> Account Information
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                error={errors.username}
+                placeholder="Your username"
+                required
+              />
+              <div>
+                <label className="block text-sm font-medium mb-2">Role</label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg border border-black bg-white text-black focus:outline-none focus:ring-2 focus:ring-black"
+                  required
+                >
+                  <option value="">Select role</option>
+                  <option value="employee">Employee</option>
+                  <option value="employer">Employer</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* Personal Information */}
           <div>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -138,55 +231,88 @@ const Profile = () => {
                 leftIcon={<Phone className="w-5 h-5" />}
               />
               <Input
-                label="Location"
-                name="location"
-                value={formData.location}
+                label="Birth Date"
+                name="birth_date"
+                type="date"
+                value={formData.birth_date}
                 onChange={handleChange}
-                placeholder="City, Country"
-                leftIcon={<MapPin className="w-5 h-5" />}
+                leftIcon={<Calendar className="w-5 h-5" />}
               />
-            </div>
-          </div>
-
-          {/* Bio */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5" /> About
-            </h3>
-            <textarea
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-3 rounded-lg border border-black bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black resize-none"
-              placeholder="Tell us a bit about yourself..."
-            />
-          </div>
-
-          {/* Company Information */}
-          {isEmployer && (
-            <div>
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Building2 className="w-5 h-5" /> Company Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
                 <Input
-                  label="Company Name"
-                  name="company_name"
-                  value={formData.company_name}
+                  label="Location"
+                  name="location"
+                  value={formData.location}
                   onChange={handleChange}
-                  placeholder="Your company name"
-                />
-                <Input
-                  label="Website"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleChange}
-                  placeholder="https://yourcompany.com"
+                  placeholder="City, Country"
+                  leftIcon={<MapPin className="w-5 h-5" />}
                 />
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Experience */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Briefcase className="w-5 h-5" /> Experience
+            </h3>
+            <textarea
+              name="experience"
+              value={formData.experience}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-3 rounded-lg border border-black bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black resize-none"
+              placeholder="Describe your work experience..."
+            />
+          </div>
+
+          {/* Skills */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Code className="w-5 h-5" /> Skills
+            </h3>
+            {loadingSkills ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader size="sm" text="Loading skills..." />
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {availableSkills.length > 0 ? (
+                  availableSkills.map((skill) => (
+                    <button
+                      key={skill.id}
+                      type="button"
+                      onClick={() => handleSkillToggle(skill.id)}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                        formData.skills.includes(skill.id)
+                          ? 'bg-black text-white border-black'
+                          : 'bg-white text-black border-black hover:bg-gray-100'
+                      }`}
+                    >
+                      {skill.name}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-gray-500">No skills available. Contact admin to add skills.</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Education */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5" /> Education
+            </h3>
+            <textarea
+              name="education"
+              value={formData.education}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-3 rounded-lg border border-black bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black resize-none"
+              placeholder="Describe your educational background..."
+            />
+          </div>
 
           {/* Submit */}
           <div className="flex justify-end pt-4 border-t border-black">

@@ -2,9 +2,22 @@ import axiosClient from './axiosClient';
 
 export const authAPI = {
   // Register a new user
+  // register: async (userData) => {
+  //   const response = await axiosClient.post('/auth/users/', userData);
+  //   return response.data;
+  // },
   register: async (userData) => {
-    const response = await axiosClient.post('/auth/users/', userData);
-    return response.data;
+    console.log('=== AUTH API REGISTER ===');
+    console.log('Sending request to /auth/users/ with data:', userData);
+    try {
+      const response = await axiosClient.post('/auth/users/', userData);
+      console.log('Register API success:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Register API error:', error);
+      console.error('Error response:', error.response?.data);
+      throw error;
+    }
   },
 
   // Login and get JWT tokens

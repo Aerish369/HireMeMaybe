@@ -47,22 +47,63 @@ export const AuthProvider = ({ children }) => {
   }, [loadUser]);
 
   // Register function
+  // const register = async (userData) => {
+  //   setError(null);
+  //   try {
+  //     await authAPI.register(userData);
+  //     // After registration, login the user
+  //     const loginData = await authAPI.login({
+  //       email: userData.email,
+  //       password: userData.password,
+  //     });
+      
+  //     localStorage.setItem('access_token', loginData.access);
+  //     localStorage.setItem('refresh_token', loginData.refresh);
+      
+  //     await loadUser();
+  //     return { success: true };
+  //   } catch (err) {
+  //     const errorMessage = err.response?.data || 'Registration failed';
+  //     setError(errorMessage);
+  //     return { success: false, error: errorMessage };
+  //   }
+  // };
+
+  // Register function
   const register = async (userData) => {
+    console.log('=== AUTH CONTEXT REGISTER CALLED ===');
+    console.log('User data received:', userData);
+    
     setError(null);
     try {
-      await authAPI.register(userData);
+      console.log('Calling authAPI.register...');
+      const registerResponse = await authAPI.register(userData);
+      console.log('Registration API response:', registerResponse);
+      
       // After registration, login the user
+      console.log('Registration successful, now logging in...');
       const loginData = await authAPI.login({
         email: userData.email,
         password: userData.password,
       });
+      console.log('Login response:', loginData);
       
       localStorage.setItem('access_token', loginData.access);
       localStorage.setItem('refresh_token', loginData.refresh);
+      console.log('Tokens saved to localStorage');
       
+      console.log('Loading user data...');
       await loadUser();
+      console.log('User loaded successfully');
+      
       return { success: true };
     } catch (err) {
+      console.error('=== REGISTRATION ERROR ===');
+      console.error('Error object:', err);
+      console.error('Error response:', err.response);
+      console.error('Error response data:', err.response?.data);
+      console.error('Error message:', err.message);
+      
       const errorMessage = err.response?.data || 'Registration failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };

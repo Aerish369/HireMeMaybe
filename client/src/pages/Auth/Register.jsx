@@ -41,11 +41,39 @@ const Register = () => {
     setApiError('');
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const validationErrors = validateRegistration(formData);
+  //   if (hasErrors(validationErrors)) {
+  //     setErrors(validationErrors);
+  //     return;
+  //   }
+
+  //   setIsSubmitting(true);
+  //   setApiError('');
+
+  //   const result = await register(formData);
+
+  //   if (result.success) {
+  //     navigate('/jobs');
+  //   } else {
+  //     setApiError(parseError(result.error));
+  //   }
+
+  //   setIsSubmitting(false);
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('=== REGISTER FORM SUBMITTED ===');
+    console.log('Form data:', formData);
 
     const validationErrors = validateRegistration(formData);
+    console.log('Validation errors:', validationErrors);
+    
     if (hasErrors(validationErrors)) {
+      console.log('Validation failed, stopping submission');
       setErrors(validationErrors);
       return;
     }
@@ -53,16 +81,30 @@ const Register = () => {
     setIsSubmitting(true);
     setApiError('');
 
-    const result = await register(formData);
+    console.log('Calling register function...');
+    
+    try {
+      const result = await register(formData);
+      console.log('Register result:', result);
 
-    if (result.success) {
-      navigate('/jobs');
-    } else {
-      setApiError(parseError(result.error));
+      if (result.success) {
+        console.log('Registration successful, navigating to /jobs');
+        navigate('/jobs');
+      } else {
+        console.error('Registration failed with error:', result.error);
+        const errorMessage = parseError(result.error);
+        console.log('Parsed error message:', errorMessage);
+        setApiError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Exception caught in handleSubmit:', error);
+      setApiError('An unexpected error occurred. Please try again.');
+    } finally {
+      console.log('Setting isSubmitting to false');
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
+
 
   return (
     <div className="min-h-screen bg-white flex">

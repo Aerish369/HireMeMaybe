@@ -11,13 +11,65 @@ class SkillSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    skills = SkillSerializer(many=True)
+    user = UserSerializer(read_only=True)
+    skills = SkillSerializer(many=True, read_only=True)
+    skill_ids = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset=Skill.objects.all(),
+        write_only=True,
+        source='skills',
+        required=False
+    )
+    
+    # Add writable user fields
+    username = serializers.CharField(write_only=True, required=False)
+    first_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    last_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    role = serializers.ChoiceField(
+        choices=[('employer', 'Employer'), ('employee', 'Employee')],
+        write_only=True,
+        required=False
+    )
+    
     class Meta: 
         model = Profile
-        fields = ['id', 'user', 'phone', 'birth_date', 'location', 'skills', 'experience', 'education']
-
-
+        fields = [
+            'id', 'user', 'phone', 'birth_date', 'location', 
+            'skills', 'skill_ids', 'experience', 'education',
+            'username', 'first_name', 'last_name', 'role'
+        ]
+        
+    def update(self, instance, validated_data):
+        # Extract user fields
+        username = validated_data.pop('username', None)
+        first_name = validated_data.pop('first_name', None)
+        last_name = validated_data.pop('last_name', None)
+        role = validated_data.pop('role', None)
+        
+        # Update user if any user fields provided
+        user = instance.user
+        if username is not None:
+            user.username = username
+        if first_name is not None:
+            user.first_name = first_name
+        if last_name is not None:
+            user.last_name = last_name
+        if role is not None:
+            user.role = role
+        user.save()
+        
+        # Handle skills (ManyToMany)
+        skills = validated_data.pop('skills', None)
+        if skills is not None:
+            instance.skills.set(skills)
+        
+        # Update remaining profile fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance
+    
 #! This one shows: required skills, who posted it, important fields
 class JobSerializer(serializers.ModelSerializer):
     applied = serializers.SerializerMethodField()

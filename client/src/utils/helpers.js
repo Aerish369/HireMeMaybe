@@ -132,3 +132,5 @@ export const parseError = (error) => {
   
   return 'An unexpected error occurred';
 };
+
+

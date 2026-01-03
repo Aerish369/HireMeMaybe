@@ -7,17 +7,22 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework import status, permissions, generics
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from .models import Profile, Application, Job
+from .models import Profile, Application, Job, Skill
 from .permissions import IsEmployer, IsEmployee, IsOwnerOrReadOnly, IsJobOwner
-from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer,MyApplicationSerializer
+from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer,MyApplicationSerializer, SkillSerializer
 
 @api_view(['GET'])
 def hello(request):
     return Response({"message": "Hello from Django API 🚀 YOYO"})
 
 
+class SkillViewSet(ReadOnlyModelViewSet):
+    queryset = Skill.objects.all()
+    serializer_class = SkillSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None  # Disable pagination for skills
 
 class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = Profile.objects.all()

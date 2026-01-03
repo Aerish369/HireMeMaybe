@@ -47,12 +47,15 @@ export const validateRegistration = (data) => {
     errors.password = 'Password must be at least 8 characters';
   }
   
-  if (data.password !== data.re_password) {
-    errors.re_password = 'Passwords do not match';
-  }
+  // if (data.password !== data.re_password) {
+  //   errors.re_password = 'Passwords do not match';
+  // }
   
   return errors;
 };
+
+
+
 
 // Validate login form
 export const validateLogin = (data) => {

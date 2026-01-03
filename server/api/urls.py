@@ -6,6 +6,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'profile', views.ProfileViewSet, basename='profile') #http://127.0.0.1:8000/api/profile/me/\
 router.register('jobs', views.JobViewSet)
+router.register(r'skills', views.SkillViewSet, basename='skills')
 
 urlpatterns = [
     path('hello/', views.hello),
