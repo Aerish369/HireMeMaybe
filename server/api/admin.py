@@ -1,4 +1,5 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from . import models
 
 
@@ -6,7 +7,7 @@ def reset_phone_numbers(modeladmin, request, queryset):
     queryset.update(phone='')
 reset_phone_numbers.short_description = "Reset phone numbers of selected profiles"
 
-class ProfileAdmin(admin.ModelAdmin):
+class ProfileAdmin(ModelAdmin):
     list_display = ('user', 'phone', 'location')
     search_fields = ('user__first_name', 'user__last_name', 'user__email', 'location')
     list_filter = ('skills', 'location')
@@ -20,7 +21,7 @@ class ProfileAdmin(admin.ModelAdmin):
 admin.site.register(models.Profile, ProfileAdmin)
 
 
-class SkillAdmin(admin.ModelAdmin):
+class SkillAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     list_filter = ('name',)
@@ -37,7 +38,7 @@ def mark_jobs_closed(modeladmin, request, queryset):
     queryset.update(status='closed')  # assuming Job model has status field
 mark_jobs_closed.short_description = "Mark selected jobs as closed"
 
-class JobAdmin(admin.ModelAdmin):
+class JobAdmin(ModelAdmin):
     list_display = ('title', 'company_name', 'location', 'posted_by', 'created_at')
     search_fields = ('title', 'company_name', 'location', 'required_skills__name')
     list_filter = ('location', 'required_skills__name')
@@ -56,7 +57,7 @@ def mark_applications_reviewed(modeladmin, request, queryset):
     queryset.update(status='reviewed')  # assuming Application model has status field
 mark_applications_reviewed.short_description = "Mark selected applications as reviewed"
 
-class ApplicationAdmin(admin.ModelAdmin):
+class ApplicationAdmin(ModelAdmin):
     list_display = ('job', 'applicant', 'applied_at')
     search_fields = ('job__title', 'job__company_name', 'applicant__email', 'applicant__first_name', 'applicant__last_name')
     list_filter = ('job__title', 'applicant')

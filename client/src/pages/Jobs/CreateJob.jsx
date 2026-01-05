@@ -83,7 +83,7 @@ const CreateJob = () => {
     try {
       const result = await jobsAPI.createJob(formData);
       toast.success('Job posted successfully!');
-      navigate(`/jobs/${result.id}`);
+      navigate(`/jobs/`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create job');
     } finally {
