@@ -61,7 +61,7 @@ class JobViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         """Returns JobCreateSerializer for POST/create, and JobSerializer for all other actions."""
-        if self.action == 'create':
+        if self.action == 'create' or 'update' or 'partial_update':
             return JobCreateSerializer
         return JobSerializer
 
