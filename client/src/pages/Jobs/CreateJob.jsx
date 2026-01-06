@@ -196,7 +196,7 @@ const CreateJob = () => {
               }
               e.target.value = '';
             }}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 text-gray-500"
             aria-label="Select skill to add"
           >
             <option value="">Select skill</option>
@@ -209,7 +209,7 @@ const CreateJob = () => {
         </div>
 
         {/* Submit */}
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3 pt-4 text-black">
           <Link to="/employer/dashboard">
             <Button variant="ghost">Cancel</Button>
           </Link>
