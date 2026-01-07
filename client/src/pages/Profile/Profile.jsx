@@ -106,7 +106,7 @@ const Profile = () => {
         toast.success('Profile updated successfully!');
         if (fetchProfile) await fetchProfile();
       } else {
-        toast.error(parseError(result.error));
+        toast.error("Something went wrong please try later.");
       }
     } catch (error) {
       console.error('Update error:', error);

@@ -102,7 +102,7 @@ class JobCreateSerializer(serializers.ModelSerializer):
         model = Job
         fields = [
             'title', 'description', 'company_name',
-            'location', 'required_skills'
+            'location', 'required_skills', 'is_active', 
         ]
 
     def create(self, validated_data):

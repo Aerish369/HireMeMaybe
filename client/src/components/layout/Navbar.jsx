@@ -23,7 +23,7 @@ const Navbar = () => {
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-darkText">HireMeMaybe</span>
+            <span className="text-xl font-bold text-gray-900">HireMeMaybe</span>
           </Link>
 
           {/* Desktop Navigation */}

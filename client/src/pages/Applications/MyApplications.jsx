@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import  applicationsAPI  from '../../api/applications';
+import applicationsAPI from '../../api/applications';
 import Loader from '../../components/ui/Loader.jsx';
 import Button from '../../components/ui/Buttons.jsx';
 import { formatRelativeTime, getApplicationStatus } from '../../utils/helpers';
@@ -55,15 +55,13 @@ const MyApplications = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 bg-white animate-fade-in">
-      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-darkText">My Applications</h1>
+        <h1 className="text-3xl font-bold text-black">My Applications</h1>
         <p className="mt-2 text-gray-500">
           Track the status of your job applications
         </p>
       </div>
 
-      {/* Applications List */}
       {applications.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
           <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -88,7 +86,6 @@ const MyApplications = () => {
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex-1">
-                    {/* Job Header */}
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                         <Building2 className="w-6 h-6 text-gray-700" />
@@ -96,7 +93,7 @@ const MyApplications = () => {
                       <div className="flex-1 min-w-0">
                         <Link 
                           to={`/jobs/${job.id || application.job_id}`}
-                          className="text-lg font-semibold text-darkText hover:text-primary transition-colors"
+                          className="text-lg font-semibold text-black hover:text-primary transition-colors"
                         >
                           {job.title || 'Job Title'}
                         </Link>
@@ -104,7 +101,6 @@ const MyApplications = () => {
                       </div>
                     </div>
 
-                    {/* Meta */}
                     <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-500">
                       {job.location && (
                         <div className="flex items-center gap-1.5">
@@ -121,7 +117,6 @@ const MyApplications = () => {
                     </div>
                   </div>
 
-                  {/* Status & Action */}
                   <div className="flex items-center gap-4">
                     <span className={`px-2 py-1 rounded text-sm font-medium ${
                       status.color === 'green' ? 'bg-green-100 text-green-800' :

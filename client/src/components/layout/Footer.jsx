@@ -13,7 +13,7 @@ const Footer = () => {
               <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
                 <Briefcase className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-darkText">HireMeMaybe</span>
+              <span className="text-xl font-bold text-black">HireMeMaybe</span>
             </Link>
             <p className="text-gray-500 max-w-md">
               Find your dream job or hire the perfect candidate. 
@@ -23,7 +23,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-darkText mb-4">Quick Links</h4>
+            <h4 className="font-semibold text-black mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
                 <Link to="/jobs" className="text-gray-500 hover:text-primary transition-colors">
@@ -45,7 +45,7 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-darkText mb-4">Contact</h4>
+            <h4 className="font-semibold text-black mb-4">Contact</h4>
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-gray-500">
                 <Mail className="w-4 h-4" />

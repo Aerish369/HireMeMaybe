@@ -9,37 +9,29 @@ import { ArrowLeft, Save, X } from 'lucide-react';
 const CreateJob = () => {
   const navigate = useNavigate();
 
-  // Initial form state with required_skills as empty array
+  // ✅ UPDATED STATE (is_active added)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     company_name: '',
     location: '',
-    required_skills: [], // <-- must be initialized as array
+    required_skills: [],
+    is_active: true, // ✅ NEW
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Skills list fetched from backend, initialize as empty array
   const [skills, setSkills] = useState([]);
 
+  // Fetch skills
   useEffect(() => {
     jobsAPI.getSkills()
       .then(res => {
-        if (Array.isArray(res)) {
-          setSkills(res);
-        } else if (res.results) {
-          // If paginated response with 'results' field
-          setSkills(res.results);
-        } else {
-          setSkills([]);
-        }
+        if (Array.isArray(res)) setSkills(res);
+        else if (res?.results) setSkills(res.results);
+        else setSkills([]);
       })
-      .catch(() => {
-        toast.error("Failed to load skills");
-        setSkills([]);
-      });
+      .catch(() => toast.error('Failed to load skills'));
   }, []);
 
   const handleChange = (e) => {
@@ -48,21 +40,19 @@ const CreateJob = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  // Add skill by ID from dropdown
   const addSkill = (skillId) => {
     if (skillId && !formData.required_skills.includes(skillId)) {
       setFormData(prev => ({
         ...prev,
-        required_skills: [...prev.required_skills, skillId]
+        required_skills: [...prev.required_skills, skillId],
       }));
     }
   };
 
-  // Remove skill by ID
   const removeSkill = (skillId) => {
     setFormData(prev => ({
       ...prev,
-      required_skills: prev.required_skills.filter(id => id !== skillId)
+      required_skills: prev.required_skills.filter(id => id !== skillId),
     }));
   };
 
@@ -74,28 +64,41 @@ const CreateJob = () => {
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.company_name.trim()) newErrors.company_name = 'Company is required';
 
-    if (Object.keys(newErrors).length > 0) {
+    if (Object.keys(newErrors).length) {
       setErrors(newErrors);
       return;
     }
 
     setIsSubmitting(true);
+
     try {
-      const result = await jobsAPI.createJob(formData);
+      // ✅ BACKEND-SAFE PAYLOAD
+      const payload = {
+        ...formData,
+        required_skills: formData.required_skills.map(Number),
+        is_active: Boolean(formData.is_active),
+      };
+
+      await jobsAPI.createJob(payload);
+
       toast.success('Job posted successfully!');
-      navigate(`/jobs/${result.id}`);
+      navigate('/jobs');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create job');
+      toast.error(
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        'Failed to create job'
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 animate-fade-in bg-gray-50 rounded-xl shadow-sm">
+    <div className="max-w-2xl mx-auto px-4 py-8 bg-gray-50 rounded-xl shadow-sm">
       <Link
         to="/employer/dashboard"
-        className="inline-flex items-center text-gray-500 hover:text-gray-700 transition-colors mb-6"
+        className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-6"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Dashboard
@@ -104,7 +107,7 @@ const CreateJob = () => {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Add Job</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Title */}
+
         <Input
           label="Title"
           name="title"
@@ -114,27 +117,23 @@ const CreateJob = () => {
           placeholder="Software Engineer"
         />
 
-        {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">
-            Description
-          </label>
+          <label className="block text-sm font-medium mb-2">Description</label>
           <textarea
             name="description"
+            rows={6}
             value={formData.description}
             onChange={handleChange}
-            rows={6}
-            className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-y ${
+            className={`w-full px-4 py-3 border rounded-lg ${
               errors.description ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="Job responsibilities, requirements, etc."
           />
           {errors.description && (
-            <p className="mt-1 text-sm text-red-500">{errors.description}</p>
+            <p className="text-sm text-red-500">{errors.description}</p>
           )}
         </div>
 
-        {/* Company */}
         <Input
           label="Company"
           name="company_name"
@@ -144,7 +143,6 @@ const CreateJob = () => {
           placeholder="Acme Corp"
         />
 
-        {/* Location */}
         <Input
           label="Location"
           name="location"
@@ -153,51 +151,60 @@ const CreateJob = () => {
           placeholder="Kathmandu, Nepal"
         />
 
-        {/* Skills */}
+        {/* ✅ JOB STATUS */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">
-            Required Skills
-          </label>
+          <label className="block text-sm font-medium mb-2">Job Status</label>
+          <select
+            value={formData.is_active ? 'true' : 'false'}
+            onChange={(e) =>
+              setFormData(prev => ({
+                ...prev,
+                is_active: e.target.value === 'true',
+              }))
+            }
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Inactive jobs will not be visible to candidates
+          </p>
+        </div>
 
-          {/* Display selected skills */}
+        {/* SKILLS */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Required Skills</label>
+
           <div className="flex flex-wrap gap-2 mb-2">
-            {formData.required_skills.length > 0 ? (
+            {formData.required_skills.length ? (
               formData.required_skills.map(id => {
                 const skill = skills.find(s => s.id === id);
-                if (!skill) return null;
                 return (
-                  <div
+                  <span
                     key={id}
-                    className="flex items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-sm"
+                    className="flex items-center gap-1 bg-gray-200 px-2 py-1 rounded-full text-sm"
                   >
-                    <span>{skill.name}</span>
-                    <button
-                      type="button"
+                    {skill?.name}
+                    <X
+                      className="w-3 h-3 cursor-pointer"
                       onClick={() => removeSkill(id)}
-                      className="hover:text-red-600"
-                      aria-label={`Remove skill ${skill.name}`}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
+                    />
+                  </span>
                 );
               })
             ) : (
-              <p className="text-gray-500 text-sm">No skills added yet</p>
+              <p className="text-gray-500 text-sm">No skills selected</p>
             )}
           </div>
 
-          {/* Skills dropdown */}
           <select
-            onChange={e => {
-              const skillId = Number(e.target.value);
-              if (!isNaN(skillId)) {
-                addSkill(skillId);
-              }
+            className="w-full border rounded px-3 py-2"
+            onChange={(e) => {
+              const id = Number(e.target.value);
+              if (id) addSkill(id);
               e.target.value = '';
             }}
-            className="w-full border rounded px-3 py-2 text-gray-500"
-            aria-label="Select skill to add"
           >
             <option value="">Select skill</option>
             {skills.map(skill => (
@@ -208,11 +215,11 @@ const CreateJob = () => {
           </select>
         </div>
 
-        {/* Submit */}
-        <div className="flex gap-3 pt-4 text-black">
+        <div className="flex gap-3 pt-4">
           <Link to="/employer/dashboard">
             <Button variant="ghost">Cancel</Button>
           </Link>
+
           <Button type="submit" variant="primary" loading={isSubmitting}>
             <Save className="w-4 h-4 mr-2" />
             Post Job

@@ -123,7 +123,7 @@ const EditJob = () => {
         Back to Dashboard
       </Link>
 
-      <h1 className="text-2xl font-bold mb-6">Edit Job</h1>
+      <h1 className="text-2xl font-bold mb-6 text-black">Edit Job</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Input
@@ -165,7 +165,7 @@ const EditJob = () => {
 
         {/* Skills */}
         <div>
-          <label className="block text-sm font-medium mb-2">Required Skills</label>
+          <label className="block text-sm text-gray-900 font-medium mb-2">Required Skills</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {formData.required_skills.map((skill, idx) => (
               <div key={idx} className="flex items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-sm">
@@ -189,7 +189,7 @@ const EditJob = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3 pt-4 text-black">
           <Link to="/employer/dashboard">
             <Button variant="ghost">Cancel</Button>
           </Link>

@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, FileText, Trash2 } from 'lucide-react';
 import Button from './ui/Buttons.jsx';
+import { useNavigate } from "react-router-dom";  
 
 const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
   const [file, setFile] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();                 
 
   if (!isOpen) return null;
 
@@ -30,13 +32,16 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSubmit = () => {
-    const formData = new FormData();
-    formData.append("cover_letter", coverLetter);
-    if (file) formData.append("resume", file);
+  const handleSubmit = async () => {
+  const formData = new FormData();
+  formData.append("cover_letter", coverLetter);
+  if (file) formData.append("resume", file);
 
-    onSubmit(formData); // 🔥 Send FormData to backend
-  };
+  await onSubmit(formData);
+
+  navigate("/my-applications"); 
+};
+
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) onClose();
@@ -51,7 +56,7 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
         
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-darkText">Apply for Job</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Apply for Job</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-darkText transition-colors"
@@ -62,8 +67,6 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
 
         {/* Content */}
         <div className="p-4 space-y-4">
-
-          {/* Job Title */}
           {jobTitle && (
             <p className="text-gray-500 text-sm">
               Applying for: <span className="text-darkText font-medium">{jobTitle}</span>
@@ -72,7 +75,7 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
 
           {/* Cover Letter */}
           <div>
-            <label className="block text-sm font-medium text-darkText mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Cover Letter (Optional)
             </label>
             <textarea
@@ -85,7 +88,7 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
 
           {/* Resume Upload */}
           <div>
-            <label className="block text-sm font-medium text-darkText mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Upload CV/Resume (Optional)
             </label>
             

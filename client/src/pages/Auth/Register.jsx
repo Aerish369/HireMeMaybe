@@ -68,7 +68,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Panel */}
-      <div className="hidden lg:flex lg:flex-1 items-center justify-center p-12 bg-primary text-white rounded-l-3xl">
+      <div className="hidden lg:flex lg:flex-1 items-center justify-center p-12 bg-blue-500 text-white rounded-l-3xl">
         <div className="text-center">
           <Briefcase className="w-20 h-20 mx-auto mb-6 opacity-90" />
           <h2 className="text-3xl font-bold mb-4">Start Your Journey</h2>
@@ -86,10 +86,10 @@ const Register = () => {
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
               <Briefcase className="w-6 h-6" />
             </div>
-            <span className="text-2xl font-bold text-darkText">HireMeMaybe</span>
+            <span className="text-2xl font-bold text-black">HireMeMaybe</span>
           </Link>
 
-          <h1 className="text-3xl font-bold text-darkText">Create an account</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Create an account</h1>
           <p className="mt-2 text-gray-600">Join our community</p>
 
           {apiError && (
@@ -101,15 +101,15 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="mt-6 space-y-5">
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium mb-2">I want to</label>
+              <label className="block text-sm text-gray-900 font-medium mb-2">I want to</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setFormData((p) => ({ ...p, role: 'employee' }))}
                   className={`p-4 rounded-lg border-2 flex justify-center gap-2 font-medium transition ${
                     formData.role === 'employee'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-gray-300 text-darkText hover:bg-primary/5'
+                      ? 'border-primary bg-blue-500 text-primary'
+                      : 'border-gray-300 text-gray-900 hover:bg-primary/5'
                   }`}
                 >
                   <User className="w-5 h-5" />
@@ -121,8 +121,8 @@ const Register = () => {
                   onClick={() => setFormData((p) => ({ ...p, role: 'employer' }))}
                   className={`p-4 rounded-lg border-2 flex justify-center gap-2 font-medium transition ${
                     formData.role === 'employer'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-gray-300 text-darkText hover:bg-primary/5'
+                      ? 'border-primary bg-blue-500 text-primary'
+                      : 'border-gray-300 text-gray-900 hover:bg-primary/5'
                   }`}
                 >
                   <Building2 className="w-5 h-5" />
@@ -198,7 +198,7 @@ const Register = () => {
 
           <p className="mt-8 text-center text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-primary hover:underline">
+            <Link to="/login" className="font-medium text-blue-500 hover:underline">
               Sign in
             </Link>
           </p>

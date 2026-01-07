@@ -61,58 +61,15 @@ const EmployeeDashboard = () => {
     <div className="max-w-6xl mx-auto px-4 py-8 bg-gray-50">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-darkText">
+        <h1 className="text-3xl font-bold text-black">
           Welcome back, {profile?.first_name || user?.email?.split('@')[0]}!
         </h1>
-        <p className="mt-2 text-gray-600">
-          Here's an overview of your job search
-        </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Total Applications</p>
-              <p className="text-3xl font-bold mt-1">{applications.length}</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <FileText className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Pending Review</p>
-              <p className="text-3xl font-bold mt-1">{pendingApps}</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Under Consideration</p>
-              <p className="text-3xl font-bold mt-1">{reviewedApps}</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl p-6 mb-8 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-darkText">Find Your Dream Job</h2>
-          <p className="text-gray-600">Browse hundreds of opportunities from top companies</p>
+          <h2 className="text-xl font-bold text-black">Find Your Dream Job</h2>
         </div>
         <Link to="/jobs">
           <Button variant="primary" size="lg">
@@ -126,7 +83,7 @@ const EmployeeDashboard = () => {
         {/* Recent Jobs */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold flex items-center gap-2 text-darkText">
+            <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-500">
               <Briefcase className="w-5 h-5 text-primary" />
               Latest Jobs
             </h2>
@@ -148,7 +105,7 @@ const EmployeeDashboard = () => {
                       <Building2 className="w-5 h-5 text-primary" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium truncate text-darkText">{job.title}</p>
+                      <p className="font-medium truncate text-gray-500">{job.title}</p>
                       <p className="text-sm text-gray-500 truncate">{job.company}</p>
                     </div>
                   </div>
@@ -158,7 +115,7 @@ const EmployeeDashboard = () => {
             )}
           </div>
           <div className="p-4 border-t border-gray-200">
-            <Link className="font-medium text-sm flex items-center justify-center text-primary hover:underline" to="/jobs">
+            <Link className="font-medium text-sm flex items-center justify-center text-blue-500 hover:underline" to="/jobs">
               View all jobs
               <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
@@ -168,7 +125,7 @@ const EmployeeDashboard = () => {
         {/* Recent Applications */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold flex items-center gap-2 text-darkText">
+            <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-500">
               <FileText className="w-5 h-5 text-primary" />
               Recent Applications
             </h2>
@@ -190,7 +147,7 @@ const EmployeeDashboard = () => {
                       <Building2 className="w-5 h-5 text-primary" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium truncate text-darkText">{app.job?.title || 'Job'}</p>
+                      <p className="font-medium truncate text-gray-500">{app.job?.title || 'Job'}</p>
                       <p className="text-sm text-gray-500">{formatRelativeTime(app.applied_at)}</p>
                     </div>
                   </div>
@@ -209,7 +166,7 @@ const EmployeeDashboard = () => {
           </div>
           {applications.length > 0 && (
             <div className="p-4 border-t border-gray-200">
-              <Link to="/my-applications" className="font-medium text-sm flex items-center justify-center text-primary hover:underline">
+              <Link to="/my-applications" className="font-medium text-sm flex items-center justify-center text-blue-500 hover:underline">
                 View all applications
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
