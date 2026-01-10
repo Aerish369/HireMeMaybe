@@ -118,7 +118,7 @@ const CreateJob = () => {
         />
 
         <div>
-          <label className="block text-sm font-medium mb-2">Description</label>
+          <label className="block text-sm text-gray-900 font-medium mb-2">Description</label>
           <textarea
             name="description"
             rows={6}
@@ -130,7 +130,7 @@ const CreateJob = () => {
             placeholder="Job responsibilities, requirements, etc."
           />
           {errors.description && (
-            <p className="text-sm text-red-500">{errors.description}</p>
+            <p className="text-sm  text-red-500">{errors.description}</p>
           )}
         </div>
 
@@ -153,19 +153,19 @@ const CreateJob = () => {
 
         {/* ✅ JOB STATUS */}
         <div>
-          <label className="block text-sm font-medium mb-2">Job Status</label>
+          <label className="block text-sm text-gray-900 font-medium mb-2">Job Status</label>
           <select
-            value={formData.is_active ? 'true' : 'false'}
+            value={formData.is_active ? 'active' : 'inactive'}
             onChange={(e) =>
               setFormData(prev => ({
                 ...prev,
-                is_active: e.target.value === 'true',
+                is_active: e.target.value,
               }))
             }
-            className="w-full border rounded px-3 py-2"
+            className="w-full border text-gray-900 rounded px-3 py-2"
           >
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
           <p className="text-xs text-gray-500 mt-1">
             Inactive jobs will not be visible to candidates
@@ -174,7 +174,7 @@ const CreateJob = () => {
 
         {/* SKILLS */}
         <div>
-          <label className="block text-sm font-medium mb-2">Required Skills</label>
+          <label className="block text-sm text-gray-900 font-medium mb-2">Required Skills</label>
 
           <div className="flex flex-wrap gap-2 mb-2">
             {formData.required_skills.length ? (
@@ -199,7 +199,7 @@ const CreateJob = () => {
           </div>
 
           <select
-            className="w-full border rounded px-3 py-2"
+            className="w-full border text-gray-900 rounded px-3 py-2"
             onChange={(e) => {
               const id = Number(e.target.value);
               if (id) addSkill(id);
@@ -215,7 +215,7 @@ const CreateJob = () => {
           </select>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex text-gray-900 gap-3 pt-4">
           <Link to="/employer/dashboard">
             <Button variant="ghost">Cancel</Button>
           </Link>

@@ -1,7 +1,8 @@
+// JobList.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jobsAPI } from '../../api/jobs';
-import  applicationsAPI from '../../api/applications';
+import applicationsAPI from '../../api/applications';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../../components/ui/Buttons.jsx';
 import Input from '../../components/ui/input.jsx';
@@ -9,22 +10,12 @@ import Loader from '../../components/ui/Loader.jsx';
 import ApplyModal from '../../components/ApplyModel.jsx';
 import { formatRelativeTime, formatSalary, getJobTypeLabel, truncateText, parseError } from '../../utils/helpers';
 import { toast } from 'sonner';
-import { 
-  Search, 
-  MapPin, 
-  Briefcase, 
-  Clock, 
-  DollarSign, 
-  Building2,
-  ChevronRight,
-  Send,
-  CheckCircle
-} from 'lucide-react';
+import { Search, MapPin, Briefcase, Clock, DollarSign, Building2, ChevronRight, Send, CheckCircle } from 'lucide-react';
 
 const JobList = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isEmployee } = useAuth();
-  
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,12 +33,27 @@ const JobList = () => {
     }
   }, []);
 
+  const fetchJobs = async () => {
+    setLoading(true);
+    try {
+      const data = await jobsAPI.getJobs();
+      console.log("Jobs fetched:", data); // 🔹 check backend field names
+      const jobList = Array.isArray(data) ? data : data.results || [];
+      setJobs(jobList);
+    } catch (err) {
+      setError('Failed to load jobs. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchMyApplications = async () => {
     try {
       const applications = await applicationsAPI.getMyApplications();
       const appliedJobIds = new Set(
         (Array.isArray(applications) ? applications : applications.results || [])
-          .map(app => app.job?.id || app.job)
+          .map(app => app.job?.id || app.job?.pk) // 🔹 fallback pk
       );
       setAppliedJobs(appliedJobIds);
     } catch {
@@ -58,23 +64,21 @@ const JobList = () => {
   const openApplyModal = (e, job) => {
     e.preventDefault();
     e.stopPropagation();
-    
     if (!isAuthenticated()) {
       navigate('/login');
       return;
     }
-    
     setSelectedJob(job);
     setApplyModalOpen(true);
   };
 
   const handleApplySubmit = async (file) => {
     if (!selectedJob) return;
-    
-    setApplyingTo(selectedJob.id);
+
+    setApplyingTo(selectedJob.id || selectedJob.pk);
     try {
-      await applicationsAPI.applyToJob(selectedJob.id, file);
-      setAppliedJobs(prev => new Set([...prev, selectedJob.id]));
+      await applicationsAPI.applyToJob(selectedJob.id || selectedJob.pk, file);
+      setAppliedJobs(prev => new Set([...prev, selectedJob.id || selectedJob.pk]));
       toast.success('Application submitted successfully!');
       setApplyModalOpen(false);
       setSelectedJob(null);
@@ -85,25 +89,11 @@ const JobList = () => {
     }
   };
 
-  const fetchJobs = async () => {
-    setLoading(true);
-    try {
-      const data = await jobsAPI.getJobs();
-      setJobs(Array.isArray(data) ? data : data.results || []);
-    } catch (err) {
-      setError('Failed to load jobs. Please try again.');
-      console.error('Error fetching jobs:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         job.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         job.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = !locationFilter || 
-                           job.location?.toLowerCase().includes(locationFilter.toLowerCase());
+                          job.company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          job.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesLocation = !locationFilter || job.location?.toLowerCase().includes(locationFilter.toLowerCase());
     return matchesSearch && matchesLocation;
   });
 
@@ -116,19 +106,18 @@ const JobList = () => {
   if (error) return (
     <div className="max-w-4xl mx-auto px-4 py-16 text-center">
       <div className="text-red-600 mb-4">{error}</div>
-      <Button onClick={fetchJobs} variant="primary" className="bg-indigo-600 hover:bg-indigo-700 text-white">Try Again</Button>
+      <Button onClick={fetchJobs}>Try Again</Button>
     </div>
   );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Browse Jobs</h1>
         <p className="mt-2 text-gray-600">Find your next career opportunity</p>
       </div>
 
-      {/* Search & Filters */}
+      {/* Search */}
       <div className="bg-white rounded-xl border border-gray-300 p-4 mb-8 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
@@ -150,7 +139,6 @@ const JobList = () => {
         </div>
       </div>
 
-      {/* Results Count */}
       <div className="mb-6 text-gray-500">{filteredJobs.length} {filteredJobs.length === 1 ? 'job' : 'jobs'} found</div>
 
       {/* Job List */}
@@ -162,10 +150,12 @@ const JobList = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredJobs.map(job => (
+          {filteredJobs.map(job => {
+            const jobId = job.id || job.pk; // 🔹 ensure ID exists
+            return (
             <Link
-              key={job.id}
-              to={`/jobs/${job.id}`}
+              key={jobId}
+              to={`/jobs/${jobId}`}
               className="block bg-white rounded-xl border border-gray-300 p-6 shadow-sm hover:shadow-lg transition-shadow duration-200"
             >
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -181,36 +171,18 @@ const JobList = () => {
                   </div>
 
                   <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-500">
-                    {job.location && (
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4" /> <span>{job.location}</span>
-                      </div>
-                    )}
-                    {job.job_type && (
-                      <div className="px-2 py-0.5 text-xs font-medium rounded bg-indigo-200 text-indigo-800">{getJobTypeLabel(job.job_type)}</div>
-                    )}
-                    {(job.salary_min || job.salary_max) && (
-                      <div className="flex items-center gap-1.5">
-                        <DollarSign className="w-4 h-4" /> <span>{formatSalary(job.salary_min, job.salary_max)}</span>
-                      </div>
-                    )}
-                    {job.created_at && (
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" /> <span>{formatRelativeTime(job.created_at)}</span>
-                      </div>
-                    )}
+                    {job.location && <div className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{job.location}</div>}
+                    {job.job_type && <div className="px-2 py-0.5 text-xs font-medium rounded bg-indigo-200 text-indigo-800">{getJobTypeLabel(job.job_type)}</div>}
+                    {(job.salary_min || job.salary_max) && <div className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" /> {formatSalary(job.salary_min, job.salary_max)}</div>}
+                    {job.created_at && <div className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {formatRelativeTime(job.created_at)}</div>}
                   </div>
 
-                  {job.description && (
-                    <p className="mt-4 text-gray-600">{truncateText(job.description, 180)}</p>
-                  )}
+                  {job.description && <p className="mt-4 text-gray-600">{truncateText(job.description, 180)}</p>}
 
                   {job.skills && job.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {job.skills.slice(0, 5).map((skill, index) => (
-                        <span key={index} className="px-2 py-1 text-xs font-medium rounded bg-indigo-200 text-indigo-800">
-                          {skill}
-                        </span>
+                      {job.skills.slice(0, 5).map(skill => (
+                        <span key={skill} className="px-2 py-1 text-xs font-medium rounded bg-indigo-200 text-indigo-800">{skill}</span>
                       ))}
                     </div>
                   )}
@@ -218,12 +190,12 @@ const JobList = () => {
 
                 <div className="flex flex-col gap-2 lg:self-center items-end">
                   {isEmployee() && (
-                    appliedJobs.has(job.id) ? (
+                    appliedJobs.has(jobId) ? (
                       <Button variant="accent" size="sm" disabled className="bg-green-600 text-white">
                         <CheckCircle className="w-4 h-4 mr-1" /> Applied
                       </Button>
                     ) : (
-                      <Button variant="primary" size="sm" onClick={(e) => openApplyModal(e, job)} loading={applyingTo === job.id} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                      <Button variant="primary" size="sm" onClick={(e) => openApplyModal(e, job)} loading={applyingTo === jobId} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                         <Send className="w-4 h-4 mr-1" /> Apply
                       </Button>
                     )
@@ -240,7 +212,7 @@ const JobList = () => {
                 </div>
               </div>
             </Link>
-          ))}
+          )})}
         </div>
       )}
 

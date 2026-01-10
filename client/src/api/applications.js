@@ -48,6 +48,24 @@ const applicationsAPI = {
     const response = await axiosClient.get('/api/my-applications/');
     return response.data;
   },
+
+  /**
+   * NEW: Get all applications for employer's jobs
+   */
+  getAllEmployerApplications: async () => {
+    const response = await axiosClient.get('/api/employer/applications/');
+    return response.data;
+  },
+
+  /**
+   * NEW: Update the status of an application
+   * @param {string|number} applicationId
+   * @param {string} status - "pending", "reviewed", "accepted", "rejected"
+   */
+  updateStatus: async (applicationId, status) => {
+    const response = await axiosClient.patch(`/api/applications/${applicationId}/`, { status });
+    return response.data;
+  },
 };
 
 export default applicationsAPI;

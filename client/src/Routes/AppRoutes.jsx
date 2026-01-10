@@ -15,6 +15,7 @@ import EditJob from '../pages/Jobs/EditJob.jsx';
 import MyApplications from '../pages/Applications/MyApplications.jsx';
 import EmployeeDashboard from '../pages/Dashboard/EmployeeDashboard.jsx';
 import EmployerDashboard from '../pages/Dashboard/EmployerDashboard.jsx';
+import JobApplications from "../pages/JobApplications.jsx";
 
 const AppRoutes = () => {
   return (
@@ -36,6 +37,7 @@ const AppRoutes = () => {
       <Route path="/employer/dashboard" element={<EmployerRoute><EmployerDashboard /></EmployerRoute>} />
       <Route path="/jobs/create" element={<EmployerRoute><CreateJob /></EmployerRoute>} />
       <Route path="/jobs/:id/edit" element={<EmployerRoute><EditJob /></EmployerRoute>} />
+      <Route path="/jobs/:id/applications" element={<JobApplications />} />
     </Routes>
   );
 };

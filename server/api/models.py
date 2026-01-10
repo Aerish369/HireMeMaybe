@@ -35,10 +35,10 @@ class Profile(models.Model):
 
 
 class Job(models.Model):
-    ACTIVE_STATUS = (
-        ("active", "Active"),
-        ("inactive", "Inactive"),
-    )
+    # ACTIVE_STATUS = (
+    #     ("active", "Active"),
+    #     ("inactive", "Inactive"),
+    # )
 
     title = models.CharField(max_length=150)
     description = models.TextField()
@@ -51,11 +51,12 @@ class Job(models.Model):
         null=True,
         related_name='posted_jobs'
     )
-    is_active = models.CharField(
-        max_length=20,
-        choices=ACTIVE_STATUS,
-        default="active"
-    )
+    # is_active = models.CharField(
+    #     max_length=20,
+    #     choices=ACTIVE_STATUS,
+    #     default="active"
+    # )
+    is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

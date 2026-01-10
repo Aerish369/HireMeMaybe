@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { jobsAPI } from '../../api/jobs';
-import applicationsAPI from '../../api/applications'; // updated import
-import { useAuth } from '../../hooks/useAuth';
-import Button from '../../components/ui/Buttons.jsx';
-import Loader from '../../components/ui/Loader.jsx';
-import ApplyModal from '../../components/ApplyModel.jsx';
-import { formatDate, formatSalary, getJobTypeLabel, parseError } from '../../utils/helpers';
-import { toast } from 'sonner';
-import { 
-  MapPin, 
-  Briefcase, 
-  Clock, 
-  DollarSign, 
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { jobsAPI } from "../../api/jobs"; // Make sure this points to the correct src/api/jobs.js
+import applicationsAPI from "../../api/applications";
+import { useAuth } from "../../hooks/useAuth";
+import Button from "../../components/ui/Buttons.jsx";
+import Loader from "../../components/ui/Loader.jsx";
+import ApplyModal from "../../components/ApplyModel.jsx";
+import { formatDate, formatSalary, getJobTypeLabel, parseError } from "../../utils/helpers";
+import { toast } from "sonner";
+import {
+  MapPin,
+  Briefcase,
+  DollarSign,
   Building2,
   ArrowLeft,
   Edit,
@@ -21,11 +20,10 @@ import {
   CheckCircle,
   Calendar,
   Users,
-  Globe
-} from 'lucide-react';
+} from "lucide-react";
 
 const JobDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // ✅ Ensure route is /jobs/:id
   const navigate = useNavigate();
   const { isAuthenticated, isEmployee, isEmployer, profile } = useAuth();
 
@@ -37,70 +35,81 @@ const JobDetail = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchJobDetails();
-  }, [id]);
+  // ✅ Fetch job details safely
+  const fetchJobDetails = useCallback(async () => {
+    if (!id) return;
 
-  const fetchJobDetails = async () => {
     setLoading(true);
+    setError(null);
+
     try {
-      const data = await jobsAPI.getJob(id);
+      // Make sure your jobsAPI.getJob adds trailing slash if DRF expects it
+      const data = await jobsAPI.getJob(id); 
       setJob(data);
 
-      // check if employee has applied
+      // Check if employee has applied
       if (isAuthenticated() && isEmployee()) {
         try {
-          const applicationStatus = await applicationsAPI.getApplicationStatus(id);
-          setHasApplied(!!applicationStatus?.applied);
+          const status = await applicationsAPI.getApplicationStatus(id);
+          setHasApplied(!!status?.applied);
         } catch {
           setHasApplied(false);
         }
       }
     } catch (err) {
-      setError('Failed to load job details');
-      console.error('Error fetching job:', err);
+      console.error(err);
+      if (err.response?.status === 404) {
+        setError("Job not found");
+      } else {
+        setError("Failed to load job details");
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, isAuthenticated, isEmployee]);
 
+  useEffect(() => {
+    fetchJobDetails();
+  }, [fetchJobDetails]);
+
+  // ✅ Open apply modal
   const openApplyModal = () => {
     if (!isAuthenticated()) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     setApplyModalOpen(true);
   };
 
-  // 🔥 handleApplySubmit updated for cover_letter + resume
+  // ✅ Submit application
   const handleApplySubmit = async (formData) => {
     setIsApplying(true);
-
     try {
       await applicationsAPI.applyToJob(id, {
-        cover_letter: formData.get('cover_letter'),
-        resume: formData.get('resume') || null,
+        cover_letter: formData.get("cover_letter"),
+        resume: formData.get("resume") || null,
       });
+      toast.success("Application submitted successfully!");
       setHasApplied(true);
-      toast.success('Application submitted successfully!');
       setApplyModalOpen(false);
     } catch (err) {
-      toast.error(parseError(err.response?.data) || 'Failed to submit application');
+      toast.error(parseError(err.response?.data));
     } finally {
       setIsApplying(false);
     }
   };
 
+  // ✅ Delete job (employer only)
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this job?')) return;
+    if (!window.confirm("Are you sure you want to delete this job?")) return;
 
     setIsDeleting(true);
     try {
       await jobsAPI.deleteJob(id);
-      toast.success('Job deleted successfully');
-      navigate('/employer/dashboard');
+      toast.success("Job deleted successfully");
+      navigate("/employer/dashboard");
     } catch (err) {
-      toast.error(parseError(err.response?.data) || 'Failed to delete job');
+      toast.error(parseError(err.response?.data));
     } finally {
       setIsDeleting(false);
     }
@@ -111,199 +120,150 @@ const JobDetail = () => {
   const renderActionButton = () => {
     if (isOwner) {
       return (
-        <>
+        <div className="flex gap-3">
           <Link to={`/jobs/${id}/edit`}>
-            <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
+            <Button variant="outline">
               <Edit className="w-4 h-4 mr-2" /> Edit
             </Button>
           </Link>
-          <Button 
-            variant="destructive" 
-            onClick={handleDelete} 
-            loading={isDeleting} 
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+          <Button variant="destructive" onClick={handleDelete} loading={isDeleting}>
             <Trash2 className="w-4 h-4 mr-2" /> Delete
           </Button>
-        </>
+        </div>
       );
     }
 
     if (isEmployee()) {
       return hasApplied ? (
-        <Button variant="accent" disabled className="bg-green-600 text-white">
+        <Button disabled className="bg-green-600 text-white">
           <CheckCircle className="w-4 h-4 mr-2" /> Applied
         </Button>
       ) : (
-        <Button variant="primary" size="lg" onClick={openApplyModal} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+        <Button onClick={openApplyModal}>
           <Send className="w-4 h-4 mr-2" /> Apply Now
         </Button>
       );
     }
 
-    return !isAuthenticated() && (
+    return (
       <Link to="/login">
-        <Button variant="primary" size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white">
-          Sign in to Apply
-        </Button>
+        <Button>Sign in to Apply</Button>
       </Link>
     );
   };
 
+  // ⏳ Loading
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="flex justify-center py-20">
         <Loader size="lg" text="Loading job details..." />
       </div>
     );
   }
 
+  // ❌ Error
   if (error || !job) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <div className="text-red-600 mb-4">{error || 'Job not found'}</div>
+      <div className="text-center py-20">
+        <p className="text-red-600 mb-4">{error || "Job not found"}</p>
         <Link to="/jobs">
-          <Button variant="primary" className="bg-indigo-600 hover:bg-indigo-700 text-white">Back to Jobs</Button>
+          <Button>Back to Jobs</Button>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
-      {/* Back Button */}
-      <Link 
-        to="/jobs" 
-        className="inline-flex items-center text-gray-500 hover:text-gray-900 transition-colors mb-6"
-      >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Jobs
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <Link to="/jobs" className="flex items-center text-gray-500 mb-6">
+        <ArrowLeft className="w-4 h-4 mr-2" /> Back to Jobs
       </Link>
 
-      {/* Job Header */}
-      <div className="bg-white rounded-xl border border-gray-300 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 px-6 py-8">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-xl bg-indigo-200 flex items-center justify-center flex-shrink-0">
-                <Building2 className="w-8 h-8 text-indigo-700" />
+      <div className="bg-white border rounded-xl shadow">
+        <div className="p-6 border-b">
+          <div className="flex justify-between">
+            <div className="flex gap-4">
+              <div className="w-14 h-14 bg-indigo-100 flex items-center justify-center rounded">
+                <Building2 className="text-indigo-600" />
               </div>
               <div>
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">{job.title}</h1>
-                <p className="text-lg text-gray-600 font-medium mt-1">{job.company || 'Company'}</p>
-                
-                <div className="flex flex-wrap gap-4 mt-4 text-sm">
+                <h1 className="text-2xl font-bold">{job.title}</h1>
+                <p className="text-gray-600">{job.company}</p>
+                <div className="flex gap-3 mt-2 text-sm text-gray-500">
                   {job.location && (
-                    <div className="flex items-center gap-1.5 text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span>{job.location}</span>
-                    </div>
+                    <span className="flex items-center gap-1">
+                      <MapPin size={14} /> {job.location}
+                    </span>
                   )}
                   {job.job_type && (
-                    <div className="px-2 py-1 text-xs font-medium rounded bg-indigo-200 text-indigo-800">
+                    <span className="bg-indigo-100 px-2 rounded">
                       {getJobTypeLabel(job.job_type)}
-                    </div>
+                    </span>
                   )}
                 </div>
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="flex gap-3">{renderActionButton()}</div>
+            {renderActionButton()}
           </div>
         </div>
 
-        {/* Job Details */}
-        <div className="p-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {(job.salary_min || job.salary_max) && (
-              <div className="bg-indigo-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
-                  <DollarSign className="w-4 h-4" /> Salary
-                </div>
-                <p className="font-semibold text-gray-900">{formatSalary(job.salary_min, job.salary_max)}</p>
-              </div>
+              <InfoBox icon={<DollarSign />} label="Salary">
+                {formatSalary(job.salary_min, job.salary_max)}
+              </InfoBox>
             )}
             {job.experience_level && (
-              <div className="bg-indigo-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
-                  <Briefcase className="w-4 h-4" /> Experience
-                </div>
-                <p className="font-semibold text-gray-900 capitalize">{job.experience_level}</p>
-              </div>
+              <InfoBox icon={<Briefcase />} label="Experience">
+                {job.experience_level}
+              </InfoBox>
             )}
             {job.created_at && (
-              <div className="bg-indigo-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
-                  <Calendar className="w-4 h-4" /> Posted
-                </div>
-                <p className="font-semibold text-gray-900">{formatDate(job.created_at)}</p>
-              </div>
+              <InfoBox icon={<Calendar />} label="Posted">
+                {formatDate(job.created_at)}
+              </InfoBox>
             )}
             {job.openings && (
-              <div className="bg-indigo-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
-                  <Users className="w-4 h-4" /> Openings
-                </div>
-                <p className="font-semibold text-gray-900">{job.openings}</p>
-              </div>
+              <InfoBox icon={<Users />} label="Openings">
+                {job.openings}
+              </InfoBox>
             )}
           </div>
 
-          {/* Job Description */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Job Description</h2>
-            <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {job.description}
-            </div>
-          </div>
-
-          {/* Requirements */}
+          <Section title="Job Description">{job.description}</Section>
           {job.requirements && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Requirements</h2>
-              <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
-                {job.requirements}
-              </div>
-            </div>
-          )}
-
-          {/* Skills */}
-          {job.skills && job.skills.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Required Skills</h2>
-              <div className="flex flex-wrap gap-2">
-                {job.skills.map((skill, index) => (
-                  <span key={index} className="px-2 py-1 text-xs font-medium rounded bg-indigo-200 text-indigo-800">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Company Info */}
-          {job.company_description && (
-            <div className="border-t border-gray-300 pt-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">About the Company</h2>
-              <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                {job.company_description}
-              </div>
-            </div>
+            <Section title="Requirements">{job.requirements}</Section>
           )}
         </div>
       </div>
 
-      {/* Apply Modal */}
       <ApplyModal
         isOpen={applyModalOpen}
         onClose={() => setApplyModalOpen(false)}
         onSubmit={handleApplySubmit}
         isSubmitting={isApplying}
-        jobTitle={job?.title}
+        jobTitle={job.title}
       />
     </div>
   );
 };
+
+// 🔹 Small reusable components
+const InfoBox = ({ icon, label, children }) => (
+  <div className="bg-indigo-50 p-4 rounded">
+    <div className="flex items-center gap-2 text-sm text-gray-500">
+      {icon} {label}
+    </div>
+    <div className="font-semibold">{children}</div>
+  </div>
+);
+
+const Section = ({ title, children }) => (
+  <div>
+    <h2 className="text-lg font-semibold mb-2">{title}</h2>
+    <p className="text-gray-700 whitespace-pre-wrap">{children}</p>
+  </div>
+);
 
 export default JobDetail;
