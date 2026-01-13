@@ -9,7 +9,8 @@
     --background: 0 0% 100%;
     --foreground: 222 47% 11%;
 
-    --card: 0 0% 100%;
+    /* Card colors */
+    --card: 0 0% 100%; /* White for cards in light mode */
     --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
@@ -55,11 +56,13 @@
     --sidebar-ring: 221 83% 53%;
   }
 
+  /* Dark mode override */
   .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 14%;
+    /* Card color for dark mode */
+    --card: 30 8% 20%; /* light gray dark mode card */
     --card-foreground: 210 40% 98%;
 
     --popover: 222 47% 14%;

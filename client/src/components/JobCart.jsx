@@ -18,13 +18,13 @@ const JobCard = ({ job, showActions, onEdit, onDelete }) => {
   };
 
   return (
-    <Card className="group hover:shadow-md transition-all duration-200 animate-fade-in">
+    <Card className="group hover:shadow-md transition-all duration-200 animate-fade-in first-letter: bg-white">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
+        <div className="flex items-start justify-between gap-4 bg-white">
+          <div className="space-y-1 text-gray-950 ">
             <Link 
               to={`/jobs/${job.id}`}
-              className="text-lg font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
+              className="text-lg font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-1"
             >
               {job.title}
             </Link>
@@ -60,7 +60,7 @@ const JobCard = ({ job, showActions, onEdit, onDelete }) => {
           </Button>
           
           {showActions && (
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 ">
               <Button variant="secondary" size="sm" asChild>
                 <Link to={`/jobs/${job.id}/applications`}>Applications</Link>
               </Button>
