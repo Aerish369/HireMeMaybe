@@ -15,7 +15,7 @@ from .serializers import ProfileSerializer, ApplicationCreateSerializer, Applica
 
 @api_view(['GET'])
 def hello(request):
-    return Response({"message": "Hello from Django API 🚀 YOYO"})
+    return Response({"message": "Hello from Django API 🚀"})
 
 
 class SkillViewSet(ReadOnlyModelViewSet):
@@ -61,7 +61,7 @@ class JobViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         """Returns JobCreateSerializer for POST/create, and JobSerializer for all other actions."""
-        if self.action == 'create' or 'update' or 'partial_update':
+        if self.action in ['create', 'update', 'partial_update']:
             return JobCreateSerializer
         return JobSerializer
 

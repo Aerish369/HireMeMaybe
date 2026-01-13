@@ -146,7 +146,7 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         
 #! New Serializer for "My Applications" feature
 class MyApplicationSerializer(serializers.ModelSerializer):
-    job = JobCreateSerializer()
+    job = JobSerializer(read_only=True)
 
     class Meta:
         model = Application

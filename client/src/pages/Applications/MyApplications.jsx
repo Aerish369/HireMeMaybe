@@ -97,7 +97,7 @@ const MyApplications = () => {
                         >
                           {job.title || 'Job Title'}
                         </Link>
-                        <p className="text-gray-500">{job.company || 'Company'}</p>
+                        <p className="text-gray-500">{job.company_name || 'Company'}</p>
                       </div>
                     </div>
 

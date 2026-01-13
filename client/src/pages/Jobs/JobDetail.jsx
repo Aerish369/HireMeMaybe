@@ -188,7 +188,7 @@ const JobDetail = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold">{job.title}</h1>
-                <p className="text-gray-600">{job.company}</p>
+                <p className="text-gray-600">{job.company_name}</p> 
                 <div className="flex gap-3 mt-2 text-sm text-gray-500">
                   {job.location && (
                     <span className="flex items-center gap-1">
