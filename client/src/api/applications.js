@@ -52,8 +52,8 @@ const applicationsAPI = {
   /**
    * NEW: Get all applications for employer's jobs
    */
-  getAllEmployerApplications: async () => {
-    const response = await axiosClient.get('/api/employer/applications/');
+  getJobApplications: async (jobId) => {
+    const response = await axiosClient.get(`/api/jobs/${jobId}/applications/`);
     return response.data;
   },
 

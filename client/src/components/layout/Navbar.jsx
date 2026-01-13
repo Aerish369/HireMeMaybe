@@ -51,12 +51,10 @@ const Navbar = () => {
                     >
                       Post Job
                     </Link>
-                    <Link 
-                      to="/jobs/jobapplication" 
-                      className="text-gray-500 hover:text-primary transition-colors font-medium"
-                    >
-                      JobApplication
-                    </Link>
+                    {/* View Application for Employer who posted the job */}
+                    {/* <Link to={`/jobs/${job.id}/applications`}>
+                      View Applications
+                    </Link> */}
                   </>
                 )}
                 

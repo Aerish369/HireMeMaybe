@@ -73,11 +73,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 #! This one shows: required skills, who posted it, important fields
 class JobSerializer(serializers.ModelSerializer):
     applied = serializers.SerializerMethodField()
+    posted_by = serializers.IntegerField(source="posted_by.id", read_only=True)
 
     class Meta:
         model = Job
         fields = [
-            'id', 'title', 'company_name', 'location', 'description', 'created_at', 'applied'
+            'id', 'title', 'company_name', 'location', 'description', 'created_at', 'applied', 'posted_by',
         ]
 
     def get_applied(self, obj):
@@ -114,7 +115,7 @@ class JobCreateSerializer(serializers.ModelSerializer):
 
 #! Application Serializer: 
 class ApplicationSerializer(serializers.ModelSerializer):
-    applicant = serializers.StringRelatedField(read_only=True)
+    applicant = UserSerializer(read_only=True)
     job = serializers.StringRelatedField(read_only=True)
 
     class Meta:

@@ -115,7 +115,7 @@ const JobDetail = () => {
     }
   };
 
-  const isOwner = isEmployer() && job?.owner === profile?.user;
+  const isOwner = isEmployer() && job?.posted_by === profile?.user?.id;
 
   const renderActionButton = () => {
     if (isOwner) {
@@ -178,6 +178,14 @@ const JobDetail = () => {
       <Link to="/jobs" className="flex items-center text-gray-500 mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Jobs
       </Link>
+
+      {isOwner && (
+        <Link to={`/jobs/${job.id}/applications`}>
+          <Button variant="outline">View Applications</Button>
+        </Link>
+      )}
+
+
 
       <div className="bg-white border rounded-xl shadow">
         <div className="p-6 border-b">

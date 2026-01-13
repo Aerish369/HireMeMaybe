@@ -21,6 +21,3 @@ urlpatterns = [
 
 
 
-#! Make Job View into one by combining other job views.
-#! Use Router for that. 
-#! 

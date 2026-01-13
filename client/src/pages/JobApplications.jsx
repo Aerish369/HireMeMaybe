@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import applicationsAPI from '../api/applications.js';
-import useAuth from '../Context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Badge } from '../components/ui/badge.jsx';
 import Button from '../components/ui/Buttons.jsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx';
 import { useToast } from '../hooks/use-toast';
 import { Loader2, ArrowLeft, User, Clock, FileText, Mail } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+
+
 
 const statusColors = {
   pending: 'bg-warning/10 text-warning border-warning/20',
@@ -17,7 +20,10 @@ const statusColors = {
 };
 
 const JobApplications = () => {
-  const { user } = useAuth();
+  const { id } = useParams();
+  // const { user } = useAuth();
+  const { profile, isEmployer } = useAuth();
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -27,15 +33,16 @@ const JobApplications = () => {
 
   // Redirect if not employer
   useEffect(() => {
-    if (user && user.role?.toLowerCase() !== 'employer') {
+    if (profile && !isEmployer()) {
       navigate('/jobs');
     }
-  }, [user, navigate]);
+  }, [profile, isEmployer, navigate]);
+
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const applicationsData = await applicationsAPI.getAllEmployerApplications();
+        const applicationsData = await applicationsAPI.getJobApplications(id);
         setApplications(Array.isArray(applicationsData) ? applicationsData : applicationsData.results || []);
       } catch (error) {
         toast({
@@ -146,7 +153,7 @@ const JobApplications = () => {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    <span>Applied {formatDate(application.created_at)}</span>
+                    <span>Applied {formatDate(application.applied_at)}</span>
                   </div>
                 </div>
 
