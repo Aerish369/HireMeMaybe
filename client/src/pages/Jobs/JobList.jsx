@@ -1,4 +1,3 @@
-// JobList.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jobsAPI } from '../../api/jobs';
@@ -179,17 +178,20 @@ const JobList = () => {
 
                   {job.description && <p className="mt-4 text-gray-600">{truncateText(job.description, 180)}</p>}
 
-                  {job.skills && job.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {job.skills.slice(0, 5).map(skill => (
-                        <span key={skill} className="px-2 py-1 text-xs font-medium rounded bg-indigo-200 text-indigo-800">{skill}</span>
-                      ))}
-                    </div>
-                  )}
+                  {job.required_skills && job.required_skills.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {job.required_skills.slice(0, 5).map(skill => (
+                  <span key={skill.id} className="px-2 py-1 text-xs font-medium rounded bg-indigo-200 text-indigo-800">
+                  {skill.name}
+                  </span>
+                  ))}
+                </div>
+                )}
+
                 </div>
 
                 <div className="flex flex-col gap-2 lg:self-center items-end">
-                  {isEmployee() && (
+                  {/* {isEmployee() && (
                     appliedJobs.has(jobId) ? (
                       <Button variant="accent" size="sm" disabled className="bg-green-600 text-white">
                         <CheckCircle className="w-4 h-4 mr-1" /> Applied
@@ -204,7 +206,7 @@ const JobList = () => {
                     <Button variant="primary" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate('/login'); }} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                       <Send className="w-4 h-4 mr-1" /> Apply
                     </Button>
-                  )}
+                  )} */}
                   <div className="flex items-center text-indigo-600 font-medium mt-1">
                     <span className="hidden lg:inline mr-2">View Details</span>
                     <ChevronRight className="w-5 h-5" />

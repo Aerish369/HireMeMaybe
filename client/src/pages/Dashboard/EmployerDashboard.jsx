@@ -9,14 +9,11 @@ import { toast } from 'sonner';
 import { 
   Briefcase, 
   PlusCircle, 
-  Users, 
-  Eye, 
-  ChevronRight,
   Building2,
   MapPin,
   Edit,
   Trash2,
-  ArrowRight
+  ChevronRight
 } from 'lucide-react';
 
 const EmployerDashboard = () => {
@@ -33,9 +30,13 @@ const EmployerDashboard = () => {
     try {
       const data = await jobsAPI.getJobs();
       const jobsArray = Array.isArray(data) ? data : data.results || [];
-      setJobs(jobsArray);
+      
+      // 🔹 filter only jobs posted by the current employer
+      const myJobs = jobsArray.filter(job => job.posted_by === profile?.user?.id);
+      setJobs(myJobs);
     } catch (err) {
       console.error('Error fetching jobs:', err);
+      toast.error('Failed to load jobs');
     } finally {
       setLoading(false);
     }
@@ -147,19 +148,19 @@ const EmployerDashboard = () => {
                       {job.applicants_count} applicant{job.applicants_count !== 1 ? 's' : ''}
                     </span>
                   )}
-                  <Link 
+                  {/* <Link 
                     to={`/jobs/${job.id}/edit`}
                     onClick={(e) => e.stopPropagation()}
                     className="p-2 rounded-lg hover:bg-primary/5 transition-colors"
                   >
                     <Edit className="w-4 h-4 text-primary" />
-                  </Link>
-                  <button
+                  </Link> */}
+                  {/* <button
                     onClick={(e) => handleDelete(job.id, e)}
                     className="p-2 rounded-lg hover:bg-red-100 transition-colors"
                   >
                     <Trash2 className="w-4 h-4 text-red-600" /> 
-                  </button>
+                  </button> */}
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </div>
               </Link>

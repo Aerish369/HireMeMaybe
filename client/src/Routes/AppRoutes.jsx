@@ -1,8 +1,10 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+
 import ProtectedRoute from './ProtectedRoute.jsx';
 import EmployerRoute from './EmployerRoute.jsx';
 import EmployeeRoute from './EmployeeRoute.jsx';
+import AuthRedirectRoute from './AuthRedirectRoute.jsx';
 
 // Pages
 import Login from '../pages/Auth/Login.jsx';
@@ -20,24 +22,101 @@ import JobApplications from "../pages/JobApplications.jsx";
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+
+     
+      <Route path="/" element={<Navigate to="/jobs" replace />} />
+      
+      <Route
+        path="/login"
+        element={
+          <AuthRedirectRoute>
+            <Login />
+          </AuthRedirectRoute>
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          <AuthRedirectRoute>
+            <Register />
+          </AuthRedirectRoute>
+        }
+      />
+
+      {/* 🌍 Public Jobs */}
       <Route path="/jobs" element={<JobList />} />
       <Route path="/jobs/:id" element={<JobDetail />} />
 
-      {/* Protected Routes */}
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      {/* 🔐 Protected */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* Employee Routes */}
-      <Route path="/employee/dashboard" element={<EmployeeRoute><EmployeeDashboard /></EmployeeRoute>} />
-      <Route path="/my-applications" element={<EmployeeRoute><MyApplications /></EmployeeRoute>} />
+      {/* 👨‍💼 Employee */}
+      <Route
+        path="/employee/dashboard"
+        element={
+          <EmployeeRoute>
+            <EmployeeDashboard />
+          </EmployeeRoute>
+        }
+      />
 
-      {/* Employer Routes */}
-      <Route path="/employer/dashboard" element={<EmployerRoute><EmployerDashboard /></EmployerRoute>} />
-      <Route path="/jobs/create" element={<EmployerRoute><CreateJob /></EmployerRoute>} />
-      <Route path="/jobs/:id/edit" element={<EmployerRoute><EditJob /></EmployerRoute>} />
-      <Route path="/jobs/:id/applications" element={<JobApplications />} />
+      <Route
+        path="/my-applications"
+        element={
+          <EmployeeRoute>
+            <MyApplications />
+          </EmployeeRoute>
+        }
+      />
+
+      {/* 🏢 Employer */}
+      <Route
+        path="/employer/dashboard"
+        element={
+          <EmployerRoute>
+            <EmployerDashboard />
+          </EmployerRoute>
+        }
+      />
+
+      <Route
+        path="/jobs/create"
+        element={
+          <EmployerRoute>
+            <CreateJob />
+          </EmployerRoute>
+        }
+      />
+
+      <Route
+        path="/jobs/:id/edit"
+        element={
+          <EmployerRoute>
+            <EditJob />
+          </EmployerRoute>
+        }
+      />
+
+      <Route
+        path="/jobs/:id/applications"
+        element={
+          <EmployerRoute>
+            <JobApplications />
+          </EmployerRoute>
+        }
+      />
+
+      {/* ❌ Unknown URL */}
+      <Route path="*" element={<Navigate to="/jobs" replace />} />
+
     </Routes>
   );
 };

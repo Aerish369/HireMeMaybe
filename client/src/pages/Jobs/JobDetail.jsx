@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { jobsAPI } from "../../api/jobs"; // Make sure this points to the correct src/api/jobs.js
+import { jobsAPI } from "../../api/jobs";
 import applicationsAPI from "../../api/applications";
 import { useAuth } from "../../hooks/useAuth";
 import Button from "../../components/ui/Buttons.jsx";
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 const JobDetail = () => {
-  const { id } = useParams(); // ✅ Ensure route is /jobs/:id
+  const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, isEmployee, isEmployer, profile } = useAuth();
 
@@ -35,7 +35,6 @@ const JobDetail = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
 
-  // ✅ Fetch job details safely
   const fetchJobDetails = useCallback(async () => {
     if (!id) return;
 
@@ -43,18 +42,11 @@ const JobDetail = () => {
     setError(null);
 
     try {
-      // Make sure your jobsAPI.getJob adds trailing slash if DRF expects it
-      const data = await jobsAPI.getJob(id); 
+      const data = await jobsAPI.getJob(id);
       setJob(data);
 
-      // Check if employee has applied
       if (isAuthenticated() && isEmployee()) {
-        try {
-          const status = await applicationsAPI.getApplicationStatus(id);
-          setHasApplied(!!status?.applied);
-        } catch {
-          setHasApplied(false);
-        }
+        setHasApplied(!!data.applied);
       }
     } catch (err) {
       console.error(err);
@@ -72,7 +64,6 @@ const JobDetail = () => {
     fetchJobDetails();
   }, [fetchJobDetails]);
 
-  // ✅ Open apply modal
   const openApplyModal = () => {
     if (!isAuthenticated()) {
       navigate("/login");
@@ -81,7 +72,6 @@ const JobDetail = () => {
     setApplyModalOpen(true);
   };
 
-  // ✅ Submit application
   const handleApplySubmit = async (formData) => {
     setIsApplying(true);
     try {
@@ -99,7 +89,6 @@ const JobDetail = () => {
     }
   };
 
-  // ✅ Delete job (employer only)
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
 
@@ -118,21 +107,6 @@ const JobDetail = () => {
   const isOwner = isEmployer() && job?.posted_by === profile?.user?.id;
 
   const renderActionButton = () => {
-    if (isOwner) {
-      return (
-        <div className="flex gap-3">
-          <Link to={`/jobs/${id}/edit`}>
-            <Button variant="outline">
-              <Edit className="w-4 h-4 mr-2" /> Edit
-            </Button>
-          </Link>
-          <Button variant="destructive" onClick={handleDelete} loading={isDeleting}>
-            <Trash2 className="w-4 h-4 mr-2" /> Delete
-          </Button>
-        </div>
-      );
-    }
-
     if (isEmployee()) {
       return hasApplied ? (
         <Button disabled className="bg-green-600 text-white">
@@ -146,7 +120,6 @@ const JobDetail = () => {
     }
   };
 
-  // ⏳ Loading
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -155,7 +128,6 @@ const JobDetail = () => {
     );
   }
 
-  // ❌ Error
   if (error || !job) {
     return (
       <div className="text-center py-20">
@@ -173,43 +145,58 @@ const JobDetail = () => {
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Jobs
       </Link>
 
-      {isOwner && (
-        <Link to={`/jobs/${job.id}/applications`}>
-          <Button variant="outline">View Applications</Button>
-        </Link>
-      )}
-
-
-
       <div className="bg-white border rounded-xl shadow">
-        <div className="p-6 border-b">
-          <div className="flex justify-between">
-            <div className="flex gap-4">
-              <div className="w-14 h-14 bg-indigo-100 flex items-center justify-center rounded">
-                <Building2 className="text-indigo-600" />
-              </div>
-              <div>
-                <h1 className="text-2xl text-gray-900 font-bold">{job.title}</h1>
-                <p className="text-gray-600">{job.company_name}</p> 
-                <div className="flex gap-3 mt-2 text-sm text-gray-500">
-                  {job.location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin size={14} /> {job.location}
-                    </span>
-                  )}
-                  {job.job_type && (
-                    <span className="bg-indigo-100 px-2 rounded">
-                      {getJobTypeLabel(job.job_type)}
-                    </span>
-                  )}
-                </div>
+        {/* Top Section */}
+        <div className="p-6 border-b space-y-3">
+          <div className="flex gap-4 items-center">
+            <div className="w-14 h-14 bg-indigo-100 flex items-center justify-center rounded">
+              <Building2 className="text-indigo-600" />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl text-gray-900 font-bold">{job.title}</h1>
+              <p className="text-gray-600">{job.company_name}</p>
+              <div className="flex gap-3 mt-2 text-sm text-gray-500">
+                {job.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin size={14} /> {job.location}
+                  </span>
+                )}
+                {job.job_type && (
+                  <span className="bg-indigo-100 px-2 rounded">
+                    {getJobTypeLabel(job.job_type)}
+                  </span>
+                )}
               </div>
             </div>
-            {renderActionButton()}
           </div>
+
+          {/* Buttons */}
+          {isOwner && (
+            <div className="flex flex-col md:flex-row md:items-center md:justify-start gap-2 mt-4">
+              <Link to={`/jobs/${job.id}/applications`}>
+                <Button variant="outline" className="mb-2 md:mb-0">
+                  View Applications
+                </Button>
+              </Link>
+              <div className="flex gap-2">
+                <Link to={`/jobs/${id}/edit`}>
+                  <Button variant="outline">
+                    <Edit className="w-4 h-4 mr-2" /> Edit
+                  </Button>
+                </Link>
+                <Button variant="destructive" onClick={handleDelete} loading={isDeleting}>
+                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Employee Apply Button */}
+          {!isOwner && renderActionButton()}
         </div>
 
-        <div className="p-6  text-gray-900 space-y-6">
+        {/* Job Details Section */}
+        <div className="p-6 text-gray-900 space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {(job.salary_min || job.salary_max) && (
               <InfoBox icon={<DollarSign />} label="Salary">
@@ -234,8 +221,20 @@ const JobDetail = () => {
           </div>
 
           <Section title="Job Description">{job.description}</Section>
-          {job.requirements && (
-            <Section title="Requirements">{job.requirements}</Section>
+
+          {job.required_skills && job.required_skills.length > 0 && (
+            <Section title="Required Skills">
+              <div className="flex flex-wrap gap-2 mt-2">
+                {job.required_skills.map(skill => (
+                  <span
+                    key={skill.id}
+                    className="px-2 py-1 text-xs font-medium rounded bg-indigo-200 text-indigo-800"
+                  >
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </Section>
           )}
         </div>
       </div>
@@ -251,7 +250,6 @@ const JobDetail = () => {
   );
 };
 
-// 🔹 Small reusable components
 const InfoBox = ({ icon, label, children }) => (
   <div className="bg-indigo-50 p-4 rounded">
     <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -264,7 +262,7 @@ const InfoBox = ({ icon, label, children }) => (
 const Section = ({ title, children }) => (
   <div>
     <h2 className="text-lg font-semibold mb-2">{title}</h2>
-    <p className="text-gray-700 whitespace-pre-wrap">{children}</p>
+    <div className="text-gray-700">{children}</div>
   </div>
 );
 

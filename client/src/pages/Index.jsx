@@ -1,14 +1,25 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import Button from "../components/ui/Buttons.jsx";
 import Navbar from "../components/layout/Navbar.jsx";
 import Footer from "../components/layout/Footer.jsx";
 
-import { Briefcase, Search, Users, ArrowRight, CheckCircle } from "lucide-react";
+import {
+  Briefcase,
+  Search,
+  Users,
+  ArrowRight,
+  CheckCircle,
+} from "lucide-react";
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
+
+
+  if (isAuthenticated()) {
+    return <Navigate to="/jobs" replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
@@ -19,38 +30,54 @@ const Index = () => {
         <section className="relative overflow-hidden py-20 lg:py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-gray-900">
-              Find Your <span className="text-indigo-600 font-semibold">Dream Job</span> Today
+              Find Your{" "}
+              <span className="text-indigo-600 font-semibold">
+                Dream Job
+              </span>{" "}
+              Today
             </h1>
 
             <p className="text-xl text-gray-700 mb-8">
-              Connect with top employers and discover opportunities that match your skills and aspirations.
+              Connect with top employers and discover opportunities that match
+              your skills and aspirations.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/jobs">
-                <Button variant="primary" size="xl" className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                  <Search className="w-5 h-5 mr-2" /> Browse Jobs
+                <Button
+                  variant="primary"
+                  size="xl"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  <Search className="w-5 h-5 mr-2" />
+                  Browse Jobs
                 </Button>
               </Link>
 
-              {!isAuthenticated() && (
-                <Link to="/register">
-                  <Button variant="outline" size="xl" className="border-indigo-600 text-indigo-600 hover:bg-indigo-50">
-                    Create Account
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-              )}
+              <Link to="/register">
+                <Button
+                  variant="outline"
+                  size="xl"
+                  className="border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                >
+                  Create Account
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* Features */}
+        {/* Features Section */}
         <section className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900">Why Choose JobPortal?</h2>
-              <p className="mt-4 text-gray-700">Everything you need to advance your career</p>
+              <h2 className="text-3xl font-bold text-gray-900">
+                Why Choose JobPortal?
+              </h2>
+              <p className="mt-4 text-gray-700">
+                Everything you need to advance your career
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -58,24 +85,32 @@ const Index = () => {
                 {
                   icon: <Briefcase className="w-8 h-8 text-indigo-600" />,
                   title: "Thousands of Jobs",
-                  description: "Access a wide variety of opportunities from companies of all sizes."
+                  description:
+                    "Access a wide variety of opportunities from companies of all sizes.",
                 },
                 {
                   icon: <Users className="w-8 h-8 text-indigo-600" />,
                   title: "Top Employers",
-                  description: "Connect with leading companies looking for talented professionals."
+                  description:
+                    "Connect with leading companies looking for talented professionals.",
                 },
                 {
                   icon: <CheckCircle className="w-8 h-8 text-indigo-600" />,
                   title: "Easy Apply",
-                  description: "Apply with just one click and track your application progress."
-                }
+                  description:
+                    "Apply with just one click and track your application progress.",
+                },
               ].map((feature, i) => (
-                <div key={i} className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm text-center">
+                <div
+                  key={i}
+                  className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm text-center"
+                >
                   <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mx-auto mb-6">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-gray-900">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    {feature.title}
+                  </h3>
                   <p className="text-gray-700">{feature.description}</p>
                 </div>
               ))}
@@ -83,17 +118,24 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Call to Action */}
+        {/* CTA Section */}
         <section className="py-20">
           <div className="max-w-4xl mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-6 text-gray-900">Ready to Get Started?</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-900">
+              Ready to Get Started?
+            </h2>
             <p className="text-lg text-gray-700 mb-8">
-              Join thousands of professionals who found their dream jobs with JobPortal.
+              Join thousands of professionals who found their dream jobs with
+              JobPortal.
             </p>
 
-            <Link to={isAuthenticated() ? "/jobs" : "/register"}>
-              <Button variant="primary" size="xl" className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                {isAuthenticated() ? "Browse Jobs" : "Sign Up Free"}
+            <Link to="/register">
+              <Button
+                variant="primary"
+                size="xl"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                Sign Up Free
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
