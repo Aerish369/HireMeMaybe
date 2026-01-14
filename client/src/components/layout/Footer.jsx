@@ -22,7 +22,7 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div>
+          {/* <div>
             <h4 className="font-semibold text-black mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
@@ -41,7 +41,7 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Contact */}
           <div>
