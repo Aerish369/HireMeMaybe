@@ -121,7 +121,7 @@ const JobList = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
             <Input
-              placeholder="Search jobs, companies, skills..."
+              placeholder="Search jobs, companies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               leftIcon={<Search className="w-5 h-5 text-indigo-600" />}
