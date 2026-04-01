@@ -152,25 +152,7 @@ const CreateJob = () => {
         />
 
         {/* ✅ JOB STATUS */}
-        <div>
-          <label className="block text-sm text-gray-900 font-medium mb-2">Job Status</label>
-          <select
-            value={formData.is_active ? 'active' : 'inactive'}
-            onChange={(e) =>
-              setFormData(prev => ({
-                ...prev,
-                is_active: e.target.value,
-              }))
-            }
-            className="w-full border text-gray-900 rounded px-3 py-2"
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <p className="text-xs text-gray-500 mt-1">
-            Inactive jobs will not be visible to candidates
-          </p>
-        </div>
+       
 
         {/* SKILLS */}
         <div>

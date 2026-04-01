@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions, generics
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from django.db.models import Q
 
 from .models import Profile, Application, Job, Skill
 from .permissions import IsEmployer, IsEmployee, IsOwnerOrReadOnly, IsJobOwner
@@ -43,10 +44,39 @@ class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gen
 
 
 class JobViewSet(ModelViewSet):
-    queryset = Job.objects.all()
+    # queryset = Job.objects.all()
     search_fields = ['title', 'company_name', 'location']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+
+    def get_queryset(self):
+        # Guard: request may not exist during schema generation or admin introspection
+        if not self.request:
+            return Job.objects.none()
+
+        user = self.request.user
+
+        # Home page (list) — active jobs only for EVERYONE including employers
+        if self.action == 'list':
+            return Job.objects.filter(is_active=True)
+
+        # Write actions + applications — unrestricted (permissions handle access control)
+        if self.action in ['update', 'partial_update', 'destroy', 'applications']:
+            return Job.objects.all()
+
+        # retrieve — employers can see active jobs + their own inactive jobs
+        if (
+            self.action == 'retrieve'
+            and user.is_authenticated
+            and hasattr(user, 'role')        # guard against user not having role attr
+            and user.role == 'employer'
+        ):
+            return Job.objects.filter(
+                Q(is_active=True) | Q(posted_by=user)
+            )
+
+        # retrieve — everyone else only sees active jobs
+        return Job.objects.filter(is_active=True)
 
     def get_permissions(self):
         """Different permissions for different actions."""

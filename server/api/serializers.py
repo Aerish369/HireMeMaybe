@@ -77,8 +77,9 @@ class JobSerializer(serializers.ModelSerializer):
             'applied',
             'posted_by',
             'required_skills',
+            'is_active',
         ]
-
+    read_only_fields = ['is_active']   
     def get_applied(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
@@ -103,7 +104,7 @@ class JobCreateSerializer(serializers.ModelSerializer):
             'company_name',
             'location',
             'required_skills',
-            'is_active',
+            # 'is_active',
         ]
 
     def create(self, validated_data):

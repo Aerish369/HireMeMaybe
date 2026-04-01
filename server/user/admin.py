@@ -20,7 +20,22 @@ except admin.sites.NotRegistered:
 
 @admin.register(models.User)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
-    pass
+    # Adds the sidebar filter panel with role options
+    list_filter = BaseUserAdmin.list_filter + ('role',)
+
+    # Show role in the list view (optional but recommended)
+    list_display = BaseUserAdmin.list_display + ('role', 'email')
+
+    # Make role editable in the user detail form
+    fieldsets = BaseUserAdmin.fieldsets + (
+        ('Role & Permissions', {'fields': ('role',)}),
+    )
+
+    # Also show role when creating a user from admin
+    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+        ('Role', {'fields': ('role',)}),
+    )
+
 
 @admin.register(Group)
 class GroupAdmin(BaseGroupAdmin, ModelAdmin):
