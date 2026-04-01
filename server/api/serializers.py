@@ -77,6 +77,7 @@ class JobSerializer(serializers.ModelSerializer):
             'applied',
             'posted_by',
             'required_skills',
+            'salary_range',
             'is_active',
         ]
     read_only_fields = ['is_active']   
@@ -104,6 +105,7 @@ class JobCreateSerializer(serializers.ModelSerializer):
             'company_name',
             'location',
             'required_skills',
+            'salary_range',
             # 'is_active',
         ]
 
