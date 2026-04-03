@@ -17,6 +17,7 @@ const CreateJob = () => {
     location: '',
     required_skills: [],
     is_active: true, // ✅ NEW
+    salary_range: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -63,6 +64,7 @@ const CreateJob = () => {
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.company_name.trim()) newErrors.company_name = 'Company is required';
+    if (!formData.salary_range) newErrors.salary_range = 'Salary range is required';  // ✅ ADD
 
     if (Object.keys(newErrors).length) {
       setErrors(newErrors);
@@ -141,6 +143,16 @@ const CreateJob = () => {
           onChange={handleChange}
           error={errors.company_name}
           placeholder="Acme Corp"
+        />
+
+        <Input
+          label="Salary Range (NPR)"
+          name="salary_range"
+          type="number"
+          value={formData.salary_range}
+          onChange={handleChange}
+          error={errors.salary_range}
+          placeholder="e.g. 50000"
         />
 
         <Input

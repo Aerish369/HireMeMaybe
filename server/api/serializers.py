@@ -80,7 +80,7 @@ class JobSerializer(serializers.ModelSerializer):
             'salary_range',
             'is_active',
         ]
-    read_only_fields = ['is_active']   
+        read_only_fields = ['is_active']   
     def get_applied(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:

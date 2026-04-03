@@ -6,7 +6,7 @@ import { useAuth } from "../../hooks/useAuth";
 import Button from "../../components/ui/Buttons.jsx";
 import Loader from "../../components/ui/Loader.jsx";
 import ApplyModal from "../../components/ApplyModel.jsx";
-import { formatDate, formatSalary, getJobTypeLabel, parseError } from "../../utils/helpers";
+import { formatDate, getJobTypeLabel, parseError } from "../../utils/helpers";
 import { toast } from "sonner";
 import {
   MapPin,
@@ -170,7 +170,7 @@ const JobDetail = () => {
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* Owner Buttons */}
           {isOwner && (
             <div className="flex flex-col md:flex-row md:items-center md:justify-start gap-2 mt-4">
               <Link to={`/jobs/${job.id}/applications`}>
@@ -198,11 +198,14 @@ const JobDetail = () => {
         {/* Job Details Section */}
         <div className="p-6 text-gray-900 space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {(job.salary_min || job.salary_max) && (
-              <InfoBox icon={<DollarSign />} label="Salary">
-                {formatSalary(job.salary_min, job.salary_max)}
+
+            {/* ✅ ADDED — salary_range as a plain string from backend */}
+            {job.salary_range && (
+              <InfoBox icon={<DollarSign />} label="Salary Range">
+                {job.salary_range}
               </InfoBox>
             )}
+
             {job.experience_level && (
               <InfoBox icon={<Briefcase />} label="Experience">
                 {job.experience_level}

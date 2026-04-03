@@ -5,7 +5,7 @@ import Button from '../../components/ui/Buttons.jsx';
 import Input from '../../components/ui/input.jsx';
 import Loader from '../../components/ui/Loader.jsx';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, X, Plus } from 'lucide-react';
+import { ArrowLeft, Save, X } from 'lucide-react';
 
 const EditJob = () => {
   const { id } = useParams();
@@ -17,15 +17,24 @@ const EditJob = () => {
     company: '',
     location: '',
     required_skills: [],
+    salary_range: '',         // ✅ ADDED
   });
 
-  const [skillInput, setSkillInput] = useState('');
+  const [skills, setSkills] = useState([]);  // ✅ ADDED — for skill dropdown
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchJob();
+    // ✅ ADDED — fetch all skills for the dropdown
+    jobsAPI.getSkills()
+      .then(res => {
+        if (Array.isArray(res)) setSkills(res);
+        else if (res?.results) setSkills(res.results);
+        else setSkills([]);
+      })
+      .catch(() => toast.error('Failed to load skills'));
   }, [id]);
 
   const fetchJob = async () => {
@@ -36,7 +45,8 @@ const EditJob = () => {
         description: job.description || '',
         company: job.company_name || '',
         location: job.location || '',
-        required_skills: job.required_skills?.map(s => s.name) || [],
+        required_skills: job.required_skills?.map(s => s.id) || [],  // ✅ FIXED — IDs not names
+        salary_range: job.salary_range || '',                          // ✅ ADDED
       });
     } catch (err) {
       toast.error('Failed to load job details');
@@ -52,26 +62,12 @@ const EditJob = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const addSkill = () => {
-    const skill = skillInput.trim();
-    if (skill && !formData.required_skills.includes(skill)) {
-      setFormData(prev => ({ ...prev, required_skills: [...prev.required_skills, skill] }));
-      setSkillInput('');
-    }
-  };
-
-  const removeSkill = (skill) => {
+  // ✅ FIXED — works with skill IDs
+  const removeSkill = (skillId) => {
     setFormData(prev => ({
       ...prev,
-      required_skills: prev.required_skills.filter(s => s !== skill)
+      required_skills: prev.required_skills.filter(id => id !== skillId)
     }));
-  };
-
-  const handleSkillKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addSkill();
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -89,13 +85,13 @@ const EditJob = () => {
 
     setIsSubmitting(true);
     try {
-      // Backend expects 'required_skills' array for JobCreateSerializer
       const jobData = {
         title: formData.title,
         description: formData.description,
         company_name: formData.company,
         location: formData.location,
-        required_skills: formData.required_skills,
+        required_skills: formData.required_skills.map(Number),
+        salary_range: formData.salary_range,  // ✅ ADDED
       };
 
       await jobsAPI.updateJob(id, jobData);
@@ -163,30 +159,53 @@ const EditJob = () => {
           onChange={handleChange}
         />
 
-        {/* Skills */}
+        {/* ✅ ADDED — Salary Range */}
+        <Input
+          label="Salary Range"
+          name="salary_range"
+          value={formData.salary_range}
+          onChange={handleChange}
+          placeholder="e.g. 50,000 - 80,000 NPR"
+        />
+
+        {/* ✅ FIXED — Skills using dropdown + IDs */}
         <div>
           <label className="block text-sm text-gray-900 font-medium mb-2">Required Skills</label>
+
           <div className="flex flex-wrap gap-2 mb-2">
-            {formData.required_skills.map((skill, idx) => (
-              <div key={idx} className="flex items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-sm">
-                {skill}
-                <button type="button" onClick={() => removeSkill(skill)} className="hover:text-red-600">
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
+            {formData.required_skills.length ? (
+              formData.required_skills.map(id => {
+                const skill = skills.find(s => s.id === id);
+                return (
+                  <span key={id} className="flex items-center gap-1 bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-sm">
+                    {skill?.name}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => removeSkill(id)} />
+                  </span>
+                );
+              })
+            ) : (
+              <p className="text-gray-500 text-sm">No skills selected</p>
+            )}
+          </div>
+
+          <select
+            className="w-full border text-gray-900 rounded px-3 py-2"
+            onChange={(e) => {
+              const id = Number(e.target.value);
+              if (id && !formData.required_skills.includes(id)) {
+                setFormData(prev => ({
+                  ...prev,
+                  required_skills: [...prev.required_skills, id]
+                }));
+              }
+              e.target.value = '';
+            }}
+          >
+            <option value="">Add a skill</option>
+            {skills.map(skill => (
+              <option key={skill.id} value={skill.id}>{skill.name}</option>
             ))}
-          </div>
-          <div className="flex gap-2">
-            <Input
-              value={skillInput}
-              onChange={e => setSkillInput(e.target.value)}
-              onKeyPress={handleSkillKeyPress}
-              placeholder="Add skill"
-            />
-            <button type="button" onClick={addSkill} className="flex items-center px-2 text-primary hover:text-primary/80">
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
+          </select>
         </div>
 
         <div className="flex gap-3 pt-4 text-black">
