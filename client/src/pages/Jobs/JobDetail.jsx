@@ -199,9 +199,8 @@ const JobDetail = () => {
         <div className="p-6 text-gray-900 space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-            {/* ✅ ADDED — salary_range as a plain string from backend */}
             {job.salary_range && (
-              <InfoBox icon={<DollarSign />} label="Salary Range">
+              <InfoBox icon={<span className="text-sm font-semibold">NPR</span>} label="Salary Range">
                 {job.salary_range}
               </InfoBox>
             )}
