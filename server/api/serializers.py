@@ -1,11 +1,18 @@
 from rest_framework import serializers
-from .models import Profile, Skill, Job, Application
+from .models import Profile, Skill, Job, Application, Category
 from user.serializers import UserSerializer
 
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
         fields = ['id', 'name']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -59,11 +66,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class JobSerializer(serializers.ModelSerializer):
     applied = serializers.SerializerMethodField()
     posted_by = serializers.IntegerField(source='posted_by.id', read_only=True)
-
     required_skills = SkillSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Job
@@ -73,6 +81,7 @@ class JobSerializer(serializers.ModelSerializer):
             'company_name',
             'location',
             'description',
+            'category',
             'created_at',
             'applied',
             'posted_by',
@@ -80,7 +89,7 @@ class JobSerializer(serializers.ModelSerializer):
             'salary_range',
             'is_active',
         ]
-    read_only_fields = ['is_active']   
+        read_only_fields = ['is_active']   
     def get_applied(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
@@ -96,6 +105,11 @@ class JobCreateSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Skill.objects.all()
     )
+    category = serializers.PrimaryKeyRelatedField( 
+        queryset=Category.objects.all(),
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Job
@@ -106,7 +120,7 @@ class JobCreateSerializer(serializers.ModelSerializer):
             'location',
             'required_skills',
             'salary_range',
-            # 'is_active',
+            'category', 
         ]
 
     def create(self, validated_data):

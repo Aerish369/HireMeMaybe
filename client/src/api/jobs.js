@@ -1,8 +1,8 @@
-import axiosClient from './axiosClient';
+import axiosClient from "./axiosClient";
 
 export const jobsAPI = {
   getJobs: async (params = {}) => {
-    const response = await axiosClient.get('/api/jobs/', { params });
+    const response = await axiosClient.get("/api/jobs/", { params });
     return response.data;
   },
 
@@ -12,7 +12,7 @@ export const jobsAPI = {
   },
 
   createJob: async (jobData) => {
-    const response = await axiosClient.post('/api/jobs/', jobData);
+    const response = await axiosClient.post("/api/jobs/", jobData);
     return response.data;
   },
 
@@ -47,15 +47,19 @@ export const jobsAPI = {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     return response.data;
   },
 
-  // 👇 Add this function to fix your error
   getSkills: async () => {
-    const response = await axiosClient.get('/api/skills/');
+    const response = await axiosClient.get("/api/skills/");
+    return response.data;
+  },
+
+  getCategories: async () => {
+    const response = await axiosClient.get("/api/categories/");
     return response.data;
   },
 };

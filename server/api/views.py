@@ -10,9 +10,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django.db.models import Q
 
-from .models import Profile, Application, Job, Skill
+from .models import Profile, Application, Job, Skill, Category
 from .permissions import IsEmployer, IsEmployee, IsOwnerOrReadOnly, IsJobOwner
-from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer,MyApplicationSerializer, SkillSerializer
+from .serializers import ProfileSerializer, ApplicationCreateSerializer, ApplicationSerializer, JobSerializer, JobCreateSerializer,MyApplicationSerializer, SkillSerializer, CategorySerializer
 
 @api_view(['GET'])
 def hello(request):
@@ -23,7 +23,15 @@ class SkillViewSet(ReadOnlyModelViewSet):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = None  # Disable pagination for skills
+    pagination_class = None 
+
+
+class CategoryViewSet(ReadOnlyModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
+
 
 class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = Profile.objects.all()
