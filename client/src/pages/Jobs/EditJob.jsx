@@ -17,17 +17,19 @@ const EditJob = () => {
     company: '',
     location: '',
     required_skills: [],
-    salary_range: '',         // ✅ ADDED
+    salary_range: '',
+    category: '',   // ✅ ADDED
   });
 
-  const [skills, setSkills] = useState([]);  // ✅ ADDED — for skill dropdown
+  const [skills, setSkills] = useState([]);
+  const [categories, setCategories] = useState([]);  // ✅ ADDED
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchJob();
-    // ✅ ADDED — fetch all skills for the dropdown
+
     jobsAPI.getSkills()
       .then(res => {
         if (Array.isArray(res)) setSkills(res);
@@ -35,6 +37,15 @@ const EditJob = () => {
         else setSkills([]);
       })
       .catch(() => toast.error('Failed to load skills'));
+
+    // ✅ ADDED — fetch categories for dropdown
+    jobsAPI.getCategories()
+      .then(res => {
+        if (Array.isArray(res)) setCategories(res);
+        else if (res?.results) setCategories(res.results);
+        else setCategories([]);
+      })
+      .catch(() => toast.error('Failed to load categories'));
   }, [id]);
 
   const fetchJob = async () => {
@@ -45,8 +56,9 @@ const EditJob = () => {
         description: job.description || '',
         company: job.company_name || '',
         location: job.location || '',
-        required_skills: job.required_skills?.map(s => s.id) || [],  // ✅ FIXED — IDs not names
-        salary_range: job.salary_range || '',                          // ✅ ADDED
+        required_skills: job.required_skills?.map(s => s.id) || [],
+        salary_range: job.salary_range || '',
+        category: job.category?.id || '',  // ✅ ADDED — pre-select existing category
       });
     } catch (err) {
       toast.error('Failed to load job details');
@@ -62,7 +74,6 @@ const EditJob = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  // ✅ FIXED — works with skill IDs
   const removeSkill = (skillId) => {
     setFormData(prev => ({
       ...prev,
@@ -91,7 +102,8 @@ const EditJob = () => {
         company_name: formData.company,
         location: formData.location,
         required_skills: formData.required_skills.map(Number),
-        salary_range: formData.salary_range,  // ✅ ADDED
+        salary_range: formData.salary_range,
+        category: formData.category ? Number(formData.category) : null,  // ✅ ADDED
       };
 
       await jobsAPI.updateJob(id, jobData);
@@ -159,7 +171,6 @@ const EditJob = () => {
           onChange={handleChange}
         />
 
-        {/* ✅ ADDED — Salary Range */}
         <Input
           label="Salary Range"
           name="salary_range"
@@ -168,7 +179,25 @@ const EditJob = () => {
           placeholder="e.g. 50,000 - 80,000 NPR"
         />
 
-        {/* ✅ FIXED — Skills using dropdown + IDs */}
+        {/* ✅ ADDED — Category dropdown with pre-selected value */}
+        <div>
+          <label className="block text-sm text-gray-900 font-medium mb-2">Category</label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full border text-gray-900 rounded px-3 py-2"
+          >
+            <option value="">Select a category</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Skills */}
         <div>
           <label className="block text-sm text-gray-900 font-medium mb-2">Required Skills</label>
 

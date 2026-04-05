@@ -9,23 +9,23 @@ import { ArrowLeft, Save, X } from 'lucide-react';
 const CreateJob = () => {
   const navigate = useNavigate();
 
-  // ✅ UPDATED STATE (is_active added)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     company_name: '',
     location: '',
     required_skills: [],
-    is_active: true, // ✅ NEW
     salary_range: '',
+    category: '',   // ✅ ADDED
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [skills, setSkills] = useState([]);
+  const [categories, setCategories] = useState([]);  // ✅ ADDED
 
-  // Fetch skills
   useEffect(() => {
+    // Fetch skills
     jobsAPI.getSkills()
       .then(res => {
         if (Array.isArray(res)) setSkills(res);
@@ -33,6 +33,15 @@ const CreateJob = () => {
         else setSkills([]);
       })
       .catch(() => toast.error('Failed to load skills'));
+
+    // ✅ ADDED — Fetch categories
+    jobsAPI.getCategories()
+      .then(res => {
+        if (Array.isArray(res)) setCategories(res);
+        else if (res?.results) setCategories(res.results);
+        else setCategories([]);
+      })
+      .catch(() => toast.error('Failed to load categories'));
   }, []);
 
   const handleChange = (e) => {
@@ -64,7 +73,6 @@ const CreateJob = () => {
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.company_name.trim()) newErrors.company_name = 'Company is required';
-    if (!formData.salary_range) newErrors.salary_range = 'Salary range is required';  // ✅ ADD
 
     if (Object.keys(newErrors).length) {
       setErrors(newErrors);
@@ -74,15 +82,17 @@ const CreateJob = () => {
     setIsSubmitting(true);
 
     try {
-      // ✅ BACKEND-SAFE PAYLOAD
       const payload = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        company_name: formData.company_name,
+        location: formData.location,
         required_skills: formData.required_skills.map(Number),
-        is_active: Boolean(formData.is_active),
+        salary_range: formData.salary_range,
+        category: formData.category ? Number(formData.category) : null,  // ✅ ADDED
       };
 
       await jobsAPI.createJob(payload);
-
       toast.success('Job posted successfully!');
       navigate('/jobs');
     } catch (err) {
@@ -132,7 +142,7 @@ const CreateJob = () => {
             placeholder="Job responsibilities, requirements, etc."
           />
           {errors.description && (
-            <p className="text-sm  text-red-500">{errors.description}</p>
+            <p className="text-sm text-red-500">{errors.description}</p>
           )}
         </div>
 
@@ -146,13 +156,11 @@ const CreateJob = () => {
         />
 
         <Input
-          label="Salary Range (NPR)"
+          label="Salary Range"
           name="salary_range"
-          type="number"
           value={formData.salary_range}
           onChange={handleChange}
-          error={errors.salary_range}
-          placeholder="e.g. 50000"
+          placeholder="e.g. 50,000 - 80,000 NPR"
         />
 
         <Input
@@ -163,10 +171,25 @@ const CreateJob = () => {
           placeholder="Kathmandu, Nepal"
         />
 
-        {/* ✅ JOB STATUS */}
-       
+        {/* ✅ ADDED — Category dropdown */}
+        <div>
+          <label className="block text-sm text-gray-900 font-medium mb-2">Category</label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full border text-gray-900 rounded px-3 py-2"
+          >
+            <option value="">Select a category</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* SKILLS */}
+        {/* Skills */}
         <div>
           <label className="block text-sm text-gray-900 font-medium mb-2">Required Skills</label>
 

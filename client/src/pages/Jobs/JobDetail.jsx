@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import {
   MapPin,
   Briefcase,
-  DollarSign,
   Building2,
   ArrowLeft,
   Edit,
@@ -20,6 +19,7 @@ import {
   CheckCircle,
   Calendar,
   Users,
+  Tag,         // ✅ ADDED — for category icon
 } from "lucide-react";
 
 const JobDetail = () => {
@@ -204,6 +204,11 @@ const JobDetail = () => {
                 {job.salary_range}
               </InfoBox>
             )}
+
+            {/* ✅ ADDED — always shown, falls back to "Not Set" */}
+            <InfoBox icon={<Tag size={16} />} label="Category">
+              {job.category ? job.category.name : "Not Set"}
+            </InfoBox>
 
             {job.experience_level && (
               <InfoBox icon={<Briefcase />} label="Experience">
