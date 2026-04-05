@@ -68,3 +68,13 @@ class ApplicationAdmin(ModelAdmin):
         return qs.select_related('job', 'applicant')
 
 admin.site.register(models.Application, ApplicationAdmin)
+
+
+@admin.register(models.Category)
+class CategoryAdmin(ModelAdmin):
+    list_display = ['name', 'job_count']
+    search_fields = ['name']
+
+    def job_count(self, obj):
+        return obj.jobs.count()
+    job_count.short_description = 'Jobs' 

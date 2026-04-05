@@ -12,6 +12,17 @@ class Skill(models.Model):
         ordering = ['name']
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'Categories'
+
+
 class Profile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -41,6 +52,13 @@ class Job(models.Model):
     location = models.CharField(max_length=150, blank=True)
     required_skills = models.ManyToManyField(Skill, related_name='jobs')
     salary_range = models.CharField(max_length=100, default="Not specified")
+    category = models.ForeignKey(          
+        Category,
+        on_delete=models.SET_NULL,        
+        null=True,
+        blank=True,                      
+        related_name='jobs'
+    )
     posted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
