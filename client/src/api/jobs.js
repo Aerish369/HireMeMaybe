@@ -62,6 +62,16 @@ export const jobsAPI = {
     const response = await axiosClient.get("/api/categories/");
     return response.data;
   },
+
+  getMyJobs: async () => {
+    const response = await axiosClient.get("/api/jobs/my-jobs/");
+    return response.data;
+  },
+
+  getRecommendedJobs: async () => {
+    const response = await axiosClient.get("/api/jobs/recommended/");
+    return response.data;
+  },
 };
 
 export default jobsAPI;

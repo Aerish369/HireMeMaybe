@@ -3,33 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import applicationsAPI from '../api/applications.js';
 import { useAuth } from '../hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card.jsx';
-import { Badge } from '../components/ui/badge.jsx';
 import Button from '../components/ui/Buttons.jsx';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx';
 import { useToast } from '../hooks/use-toast';
-import { Loader2, ArrowLeft, User, Clock, FileText, Mail } from 'lucide-react';
+import { Loader2, ArrowLeft, User, Clock, FileText, Mail, Download } from 'lucide-react'; // ✅ Download added
 import { useParams } from 'react-router-dom';
-
-
-
-const statusColors = {
-  pending: 'bg-warning/10 text-warning border-warning/20',
-  reviewed: 'bg-info/10 text-info border-info/20',
-  accepted: 'bg-success/10 text-success border-success/20',
-  rejected: 'bg-destructive/10 text-destructive border-destructive/20',
-};
 
 const JobApplications = () => {
   const { id } = useParams();
-  // const { user } = useAuth();
   const { profile, isEmployer } = useAuth();
-
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [updatingId, setUpdatingId] = useState(null);
 
   // Redirect if not employer
   useEffect(() => {
@@ -37,7 +23,6 @@ const JobApplications = () => {
       navigate('/jobs');
     }
   }, [profile, isEmployer, navigate]);
-
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -58,30 +43,17 @@ const JobApplications = () => {
     fetchApplications();
   }, [toast, navigate]);
 
-  const handleStatusChange = async (applicationId, newStatus) => {
-    setUpdatingId(applicationId);
-    try {
-      await applicationsAPI.updateStatus(applicationId, newStatus);
-      setApplications(applications.map(app =>
-        app.id === applicationId ? { ...app, status: newStatus } : app
-      ));
-      toast({
-        title: 'Status updated',
-        description: `Application status changed to ${newStatus}`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update status',
-        variant: 'destructive',
-      });
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
   const formatDate = (dateString) =>
     new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  // ✅ builds the correct resume URL from the stored path
+  const getResumeUrl = (resumePath) => {
+    if (!resumePath) return null;
+    // if backend already returns a full URL (http://...), use it directly
+    if (resumePath.startsWith('http')) return resumePath;
+    // otherwise prepend the backend base URL
+    return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}${resumePath}`;
+  };
 
   if (isLoading) {
     return (
@@ -116,37 +88,13 @@ const JobApplications = () => {
                   </CardTitle>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Mail className="h-4 w-4" />
+                    {/* ✅ clicking email opens mail client */}
                     <a href={`mailto:${application.applicant.email}`} className="hover:text-primary">
                       {application.applicant.email}
                     </a>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-3">
-                  <Select
-                    value={application.status}
-                    onValueChange={(value) => handleStatusChange(application.id, value)}
-                    disabled={updatingId === application.id}
-                  >
-                    <SelectTrigger className="w-32">
-                      {updatingId === application.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <SelectValue />
-                      )}
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="reviewed">Reviewed</SelectItem>
-                      <SelectItem value="accepted">Accepted</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Badge className={`${statusColors[application.status]} capitalize`}>
-                    {application.status}
-                  </Badge>
-                </div>
+                {/* ✅ REMOVED — status dropdown and badge completely removed */}
               </CardHeader>
 
               <CardContent>
@@ -169,13 +117,19 @@ const JobApplications = () => {
                   </div>
                 )}
 
+                {/* ✅ FIXED — download attribute forces download instead of opening in browser */}
                 {application.resume && (
                   <div>
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={application.resume} target="_blank" rel="noopener noreferrer">
-                        <FileText className="h-4 w-4 mr-2" /> View Resume
-                      </a>
-                    </Button>
+                    <a
+                      href={getResumeUrl(application.resume)}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-2" /> Download Resume
+                      </Button>
+                    </a>
                   </div>
                 )}
               </CardContent>

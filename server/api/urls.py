@@ -15,6 +15,7 @@ urlpatterns = [
     # api/jobs/pk
     # POST /jobs/create/
     # DELETE /api/jobs/12/delete/
+    path('jobs/recommended/', views.RecommendedJobsAPIView.as_view(), name='recommended-jobs'),
     path('jobs/<int:job_id>/apply/', views.ApplyJobAPIView.as_view(), name='apply-job'), #POST /jobs/<job_id>/apply/
     
     path('my-applications/', views.MyApplicationsAPIView.as_view(), name='my-applications'),

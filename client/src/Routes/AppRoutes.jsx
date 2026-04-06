@@ -18,6 +18,9 @@ import MyApplications from '../pages/Applications/MyApplications.jsx';
 import EmployeeDashboard from '../pages/Dashboard/EmployeeDashboard.jsx';
 import EmployerDashboard from '../pages/Dashboard/EmployerDashboard.jsx';
 import JobApplications from "../pages/JobApplications.jsx";
+import RecommendedJobs from "../pages/Jobs/RecommendedJobs.jsx";
+import CategoryJobs from "../pages/Jobs/CategoryJobs.jsx";
+
 
 const AppRoutes = () => {
   return (
@@ -113,6 +116,20 @@ const AppRoutes = () => {
           </EmployerRoute>
         }
       />
+      <Route 
+        path="/jobs/recommended" 
+        element={
+          <RecommendedJobs />
+        } 
+      />
+
+      <Route 
+        path="/jobs/category/:categoryId" 
+        element={
+          <CategoryJobs />
+          } 
+          />
+
 
       {/* ❌ Unknown URL */}
       <Route path="*" element={<Navigate to="/jobs" replace />} />

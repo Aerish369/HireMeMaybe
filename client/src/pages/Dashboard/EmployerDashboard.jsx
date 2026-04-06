@@ -11,8 +11,6 @@ import {
   PlusCircle, 
   Building2,
   MapPin,
-  Edit,
-  Trash2,
   ChevronRight
 } from 'lucide-react';
 
@@ -28,12 +26,11 @@ const EmployerDashboard = () => {
   const fetchMyJobs = async () => {
     setLoading(true);
     try {
-      const data = await jobsAPI.getJobs();
+      // ✅ FIXED — dedicated endpoint returns ALL jobs by this employer
+      // no pagination, no is_active filter, no client-side filtering needed
+      const data = await jobsAPI.getMyJobs();
       const jobsArray = Array.isArray(data) ? data : data.results || [];
-      
-      // 🔹 filter only jobs posted by the current employer
-      const myJobs = jobsArray.filter(job => job.posted_by === profile?.user?.id);
-      setJobs(myJobs);
+      setJobs(jobsArray);
     } catch (err) {
       console.error('Error fetching jobs:', err);
       toast.error('Failed to load jobs');
@@ -70,7 +67,7 @@ const EmployerDashboard = () => {
       {/* Welcome Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-black">
-          Welcome back, {profile?.first_name || user?.email?.split('@')[0]}!
+          Welcome back, {profile?.user?.first_name || user?.email?.split('@')[0]}!
         </h1>
       </div>
 
@@ -93,6 +90,12 @@ const EmployerDashboard = () => {
           <h2 className="text-xl font-semibold flex items-center gap-2 text-black">
             <Briefcase className="w-5 h-5 text-primary" />
             My Job Postings
+            {/* ✅ show total count */}
+            {jobs.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 text-sm bg-indigo-100 text-indigo-700 rounded-full">
+                {jobs.length}
+              </span>
+            )}
           </h2>
           <Link to="/jobs/create">
             <Button variant="ghost" size="sm">
@@ -129,7 +132,15 @@ const EmployerDashboard = () => {
                     <Building2 className="w-6 h-6 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold truncate text-black">{job.title}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold truncate text-black">{job.title}</p>
+                      {/* ✅ show inactive badge so employer knows which jobs are inactive */}
+                      {!job.is_active && (
+                        <span className="px-2 py-0.5 text-xs bg-red-100 text-red-600 rounded-full flex-shrink-0">
+                          Inactive
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-3 text-sm text-gray-500">
                       {job.location && (
                         <span className="flex items-center gap-1">
@@ -148,19 +159,6 @@ const EmployerDashboard = () => {
                       {job.applicants_count} applicant{job.applicants_count !== 1 ? 's' : ''}
                     </span>
                   )}
-                  {/* <Link 
-                    to={`/jobs/${job.id}/edit`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-2 rounded-lg hover:bg-primary/5 transition-colors"
-                  >
-                    <Edit className="w-4 h-4 text-primary" />
-                  </Link> */}
-                  {/* <button
-                    onClick={(e) => handleDelete(job.id, e)}
-                    className="p-2 rounded-lg hover:bg-red-100 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600" /> 
-                  </button> */}
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </div>
               </Link>
