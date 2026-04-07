@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
   const [file, setFile] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
+  const [errors, setErrors] = useState({});  // ✅ ADDED
   const fileInputRef = useRef(null);
   const navigate = useNavigate();                 
 
@@ -21,6 +22,7 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
       ];
       if (validTypes.includes(selectedFile.type)) {
         setFile(selectedFile);
+        setErrors(prev => ({ ...prev, resume: '' }));  // ✅ clear error on file select
       } else {
         alert('Please upload a PDF or Word document');
       }
@@ -33,15 +35,23 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
   };
 
   const handleSubmit = async () => {
-  const formData = new FormData();
-  formData.append("cover_letter", coverLetter);
-  if (file) formData.append("resume", file);
+    // ✅ ADDED — validate both fields
+    const newErrors = {};
+    if (!coverLetter.trim()) newErrors.coverLetter = 'Cover letter is required.';
+    if (!file) newErrors.resume = 'Resume is required.';
 
-  await onSubmit(formData);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-  navigate("/my-applications"); 
-};
+    const formData = new FormData();
+    formData.append("cover_letter", coverLetter);
+    formData.append("resume", file);
 
+    await onSubmit(formData);
+    navigate("/my-applications"); 
+  };
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) onClose();
@@ -76,26 +86,37 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
           {/* Cover Letter */}
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-2">
-              Cover Letter (Optional)
+              Cover Letter <span className="text-red-500">*</span>
             </label>
             <textarea
               value={coverLetter}
-              onChange={(e) => setCoverLetter(e.target.value)}
+              onChange={(e) => {
+                setCoverLetter(e.target.value);
+                if (e.target.value.trim()) setErrors(prev => ({ ...prev, coverLetter: '' }));  // ✅ clear error on type
+              }}
               placeholder="Write something..."
-              className="w-full border rounded-lg p-3 text-sm resize-none focus:outline-primary h-28"
+              className={`w-full border rounded-lg p-3 text-sm resize-none focus:outline-primary h-28 ${
+                errors.coverLetter ? 'border-red-500' : 'border-gray-300'
+              }`}
             />
+            {/* ✅ Cover letter error */}
+            {errors.coverLetter && (
+              <p className="text-red-500 text-xs mt-1">{errors.coverLetter}</p>
+            )}
           </div>
 
           {/* Resume Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-2">
-              Upload CV/Resume (Optional)
+              Upload CV/Resume <span className="text-red-500">*</span>
             </label>
             
             {!file ? (
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-gray-300 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors ${
+                  errors.resume ? 'border-red-500' : 'border-gray-300'
+                }`}
               >
                 <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
                 <p className="text-sm text-gray-500">
@@ -120,6 +141,11 @@ const ApplyModal = ({ isOpen, onClose, onSubmit, isSubmitting, jobTitle }) => {
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
+            )}
+
+            {/* ✅ Resume error */}
+            {errors.resume && (
+              <p className="text-red-500 text-xs mt-1">{errors.resume}</p>
             )}
 
             <input
